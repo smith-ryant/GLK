@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Door Survey">
+<title>Door Survey — Garrison Lock &amp; Key</title>
+<style>
+:root{--navy:#192840;--navy2:#24374f;--brass:#b8852a;--brasslt:#d9a94a;
+--bg:#f4f2ec;--card:#fff;--ink:#1b1f24;--mute:#6b7280;--line:#ddd8cc;
+--red:#b4322a;--redbg:#fcefee;--green:#256b4a;--greenbg:#eef6f1;--amber:#8a6100;--amberbg:#fdf6e3;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top) + 9px) 14px 8px;
+position:sticky;top:0;z-index:50;border-bottom:3px solid var(--brass)}
+header h1{margin:0;font-size:14px;letter-spacing:.13em;text-transform:uppercase;font-weight:700}
+header .sub{font-size:11px;color:#b9c3d1;margin-top:1px}
+nav{display:flex;background:var(--navy2);position:sticky;top:0;z-index:49}
+nav button{flex:1;background:none;border:none;color:#b9c3d1;padding:11px 3px;font-size:13px;
+font-weight:600;border-bottom:3px solid transparent;font-family:inherit}
+nav button.on{color:#fff;border-bottom-color:var(--brasslt)}
+main{padding:12px 12px 100px;max-width:760px;margin:0 auto}
+.screen{display:none}.screen.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+color:var(--mute);margin:13px 0 5px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:11px 10px;font-size:16px;font-family:inherit;
+border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+input:disabled,select:disabled{background:#eceae4;color:#9aa0a6}
+textarea{min-height:60px;resize:vertical}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+button.btn{width:100%;padding:14px;border:none;border-radius:8px;background:var(--navy);color:#fff;
+font-size:16px;font-weight:700;font-family:inherit;margin-top:13px}
+button.btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+button.btn.brass{background:var(--brass)}
+button.btn.danger{background:#fff;color:var(--red);border:2px solid var(--red)}
+button.btn:active{opacity:.72}
+h2.sec{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--navy);
+margin:20px 0 9px;padding-bottom:5px;border-bottom:2px solid var(--brass)}
+h2.sec:first-child{margin-top:0}
+/* tap chips — the speed mechanism */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.chips button{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:9px 13px;
+font-size:14px;font-family:inherit;color:var(--ink)}
+.chips button.on{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600}
+.chips button.preset{border-color:var(--brass);color:#7d5a12;font-weight:600}
+.chips button.preset:active{background:var(--brass);color:#fff}
+.opening{background:#fff;border:1px solid var(--line);border-left:5px solid var(--navy);
+border-radius:8px;padding:11px;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px}
+.opening.nonstd{border-left-color:var(--brass)}
+.opening .body{flex:1;min-width:0}
+.opening .num{display:inline-block;background:var(--navy);color:#fff;font-weight:700;font-size:11px;
+padding:2px 8px;border-radius:11px;margin-right:6px}
+.opening .name{font-weight:700}
+.opening .meta{font-size:13px;color:var(--mute);margin-top:3px}
+.opening .dup{background:#f0ede5;border:1px solid var(--line);border-radius:7px;
+padding:8px 10px;font-size:12px;font-weight:700;color:var(--navy);font-family:inherit}
+.tag{display:inline-block;background:#eceae4;border-radius:5px;padding:1px 7px;font-size:12px;
+margin:3px 4px 0 0;color:#3c4450}
+.tag.key{background:#e6eef7;color:var(--navy);font-weight:600}
+.tag.nokey{background:#efeae4;color:#7a6a52}
+.dev{border:1px solid var(--line);border-radius:8px;padding:11px;margin-bottom:9px;background:#fbfaf7}
+.dev .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.x{background:none;border:none;color:var(--red);font-size:13px;font-weight:700;padding:4px 6px;font-family:inherit}
+.alert{border-radius:8px;padding:12px;margin-bottom:10px;font-size:14px;line-height:1.45}
+.alert.bad{background:var(--redbg);border:1px solid #e8b6b1;color:#7d201a}
+.alert.warn{background:var(--amberbg);border:1px solid #e2cd94;color:#6d4c00}
+.alert.ok{background:var(--greenbg);border:1px solid #bcd9c9;color:var(--green)}
+.alert b{display:block;margin-bottom:4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.verify{background:var(--amberbg);border:2px solid var(--brass);border-radius:9px;padding:12px;margin-bottom:12px}
+.verify b{display:block;font-size:13px;color:#6d4c00;margin-bottom:6px}
+.photos{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.photos .ph{position:relative;width:74px;height:74px;border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.photos .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.photos .ph button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;
+border:none;border-radius:50%;width:21px;height:21px;font-size:12px;line-height:1;font-family:inherit}
+.cam{display:block;text-align:center;background:var(--navy);color:#fff;border-radius:8px;
+padding:14px;font-weight:700;font-size:16px}
+.cam input{display:none}
+.count{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.count:last-child{border-bottom:none}
+.count b{font-variant-numeric:tabular-nums}
+.count.big{font-size:17px;font-weight:700;color:var(--navy)}
+.empty{text-align:center;color:var(--mute);padding:32px 16px;font-size:15px}
+.hint{font-size:12px;color:var(--mute);margin-top:5px;line-height:1.4}
+.bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);
+padding:9px 12px calc(9px + env(safe-area-inset-bottom));z-index:60;display:flex;gap:8px}
+.bar button{flex:1;margin-top:0;padding:13px}
+.flag{text-align:center;font-size:11px;padding:7px;color:var(--mute)}
+.flag.dirty{color:var(--red);font-weight:700}
+@media print{
+ header,nav,.bar,button,.no-print,.cam{display:none!important}
+ body{background:#fff;font-size:10.5pt}
+ main{padding:0;max-width:none}
+ .screen{display:none!important}
+ #po{display:block!important}
+}
+#po{display:none}
+#po h2{font-size:15pt;margin:0 0 2px;color:#192840}
+#po h3{margin:15px 0 5px;font-size:12pt;border-bottom:2px solid #192840;padding-bottom:3px}
+#po table{width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:9px}
+#po th,#po td{border:1px solid #999;padding:3px 5px;text-align:left;vertical-align:top}
+#po th{background:#eee}
+#po .note{font-size:8.5pt;font-style:italic;color:#444;margin:6px 0 12px}
+#po .ph{display:inline-block;width:31%;margin:1%;vertical-align:top}
+#po .ph img{width:100%;border:1px solid #999}
+#po .cap{font-size:7.5pt}
+</style>
+</head>
+<body>
+
+<header><h1>Door Survey</h1><div class="sub">Garrison Lock &amp; Key · Phase 1</div></header>
+
+<nav>
+ <button id="t-prop" class="on" onclick="show('prop')">Property</button>
+ <button id="t-open" onclick="show('open')">Openings</button>
+ <button id="t-rev" onclick="show('rev')">Review</button>
+</nav>
+
+<main>
+
+<!-- PROPERTY -->
+<section id="s-prop" class="screen on">
+ <div class="card">
+  <h2 class="sec">Survey</h2>
+  <label>Survey ID</label><input id="p_id" readonly>
+  <div class="row">
+   <div><label>Date</label><input id="p_date" type="date"></div>
+   <div><label>Surveyed by</label><input id="p_by" placeholder="Ryan"></div>
+  </div>
+ </div>
+ <div class="card">
+  <h2 class="sec">Customer</h2>
+  <label>Name</label><input id="p_cust">
+  <label>Phone</label><input id="p_phone" type="tel" inputmode="tel">
+  <label>Email</label><input id="p_email" type="email" inputmode="email" autocapitalize="off">
+ </div>
+ <div class="card">
+  <h2 class="sec">Property</h2>
+  <label>Service address</label><input id="p_addr">
+  <div class="row">
+   <div><label>City</label><input id="p_city"></div>
+   <div><label>ZIP</label><input id="p_zip" inputmode="numeric"></div>
+  </div>
+  <label>Property type</label><select id="p_ptype"></select>
+  <label>Owner or tenant</label><select id="p_own"></select>
+  <label>Trigger event</label><select id="p_trig"></select>
+  <label>Reason for call — their words</label>
+  <textarea id="p_reason" placeholder="What the customer actually said"></textarea>
+ </div>
+ <div class="card">
+  <h2 class="sec">Measurement standard</h2>
+  <p class="hint" style="margin:0 0 10px">Measure two or three doors, set it here once, and every opening
+  inherits it. Mark the odd ones non-standard as you go.</p>
+  <label>Thickness</label><select id="p_thk"></select>
+  <label>Backset</label><select id="p_bs"></select>
+  <label>Cross bore</label><select id="p_cb"></select>
+  <div id="verifiedList" class="hint"></div>
+ </div>
+</section>
+
+<!-- OPENINGS LIST -->
+<section id="s-open" class="screen">
+ <div id="verifyBanner"></div>
+ <div id="openList"></div>
+ <button class="btn brass" onclick="newOpening()">+ Add opening</button>
+</section>
+
+<!-- OPENING EDITOR -->
+<section id="s-edit" class="screen">
+ <div class="card">
+  <h2 class="sec">Opening <span id="e_num"></span></h2>
+  <label>Location</label>
+  <div class="chips" id="locChips"></div>
+  <input id="e_loc" placeholder="or type a name">
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Devices</h2>
+  <label>Presets — one tap</label>
+  <div class="chips" id="presetChips"></div>
+  <div id="devList" style="margin-top:10px"></div>
+  <button class="btn alt" onclick="addDevice()">+ Add device manually</button>
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Door</h2>
+  <label>Door type</label><select id="e_dtype"></select>
+  <label>Material</label><select id="e_mat"></select>
+  <label>Condition</label><select id="e_cond"></select>
+  <label>Measurements</label>
+  <div class="chips">
+   <button id="stdBtn" onclick="toggleStd()"></button>
+  </div>
+  <div id="stdFields"></div>
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Photos</h2>
+  <label class="cam">📷 Take photo
+   <input type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(this)">
+  </label>
+  <div id="photoList" class="photos"></div>
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Notes</h2>
+  <textarea id="e_notes" placeholder="Split jamb, handleset inoperative, paint-bound…"></textarea>
+ </div>
+
+ <button class="btn danger" onclick="deleteOpening()">Delete this opening</button>
+</section>
+
+<!-- REVIEW -->
+<section id="s-rev" class="screen">
+ <div id="flags"></div>
+ <div class="card"><h2 class="sec">Counts</h2><div id="counts"></div></div>
+ <div class="card">
+  <h2 class="sec">Give to the customer</h2>
+  <button class="btn" onclick="makePDF()">Survey PDF — print or share</button>
+  <p class="hint">Opens the print sheet. Tap the share icon there to text, email, or save it as a PDF.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Keep your copy</h2>
+  <button class="btn brass" onclick="exportData()">Export data file</button>
+  <p class="hint">Save it to iCloud Drive from the share sheet. This is the record — not the phone.</p>
+  <label style="margin-top:16px">Load a saved survey</label>
+  <input type="file" accept=".json,application/json" onchange="importData(this)" style="font-size:14px;padding:8px">
+  <p class="hint">Replaces what is currently on screen. Export first.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Survey</h2>
+  <button class="btn danger" onclick="resetAll()">Start a new survey</button>
+  <p class="hint">Export first. This clears everything.</p>
+ </div>
+</section>
+
+<div id="po"></div>
+<div class="flag" id="flagbar"></div>
+</main>
+
+<div class="bar" id="editBar" style="display:none">
+ <button class="btn alt" onclick="saveOpening('open')">Done</button>
+ <button class="btn brass" onclick="saveOpening('next')">Save + next</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   LISTS — edit these and the app changes. Nothing else to touch.
+   (Acceptance criterion A12)
+   ═══════════════════════════════════════════════════════════ */
+const L = {
+ ptype:  ["Single family","Duplex","Townhome","Condo","Rental","Mobile home"],
+ owner:  ["Owner","Tenant"],
+ trigger:["Move-in","Tenant turnover","Lost key","Break-in","Separation",
+          "Contractor access","Lockout","New purchase / remodel","Other"],
+ dtype:  ["Interior","Front entry","Side entry","Back / patio","French pair",
+          "Garage man-door","Exterior other"],
+ mat:    ["Wood hollow","Wood solid","Steel","Fiberglass","Glass","Unknown"],
+ cond:   ["Good","Fair","Poor — see notes","No door or frame"],
+ thk:    ["1-3/4\"","1-3/8\"","Other","Not measured"],
+ bs:     ["2-3/8\"","2-3/4\"","Other","Not measured"],
+ cb:     ["2-1/8\"","Other","None","Not measured"],
+ devtype:["Knob","Lever","Handleset","Deadbolt","Mortise","Deadlatch","Exit device"],
+ func:   ["Entry / keyed","Storeroom","Privacy","Passage","Closet","Dummy","Unknown"],
+ mfr:    ["Kwikset","Schlage","Defiant","Baldwin","Emtek","Weiser","Other","Unknown"],
+ keyway: ["KW1 (Kwikset / Ilco 1176)","SC1 (Schlage)","WR5 (Weiser)","Other","Unknown"],
+
+ /* Flow rule F-4 — location tap-list. Replace with your own names. */
+ locs: ["Front Entry","Back Door","Garage Man-Door","Patio","Master Suite",
+        "BR1","BR2","BR3","BR4","Bath1","Bath2","Closet","Utility","Laundry",
+        "Office","Storage","Outbuilding","Hall"],
+
+ /* Flow rule F-2 — presets. Each adds its devices in one tap. */
+ presets: [
+  {name:"Interior privacy", devices:[{type:"Lever",func:"Privacy",mfr:"Kwikset"}]},
+  {name:"Interior passage", devices:[{type:"Lever",func:"Passage",mfr:"Kwikset"}]},
+  {name:"Closet",           devices:[{type:"Lever",func:"Closet",mfr:"Kwikset"}]},
+  {name:"Entry lever + DB", devices:[
+     {type:"Lever",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)"},
+     {type:"Deadbolt",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)"}]},
+  {name:"Handleset + DB",   devices:[
+     {type:"Handleset",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)"},
+     {type:"Deadbolt",func:"Entry / keyed",mfr:"Schlage",keyway:"SC1 (Schlage)"}]},
+  {name:"Deadbolt only",    devices:[
+     {type:"Deadbolt",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)"}]},
+  {name:"No hardware",      devices:[]}
+ ],
+
+ verifyEvery: 5     /* Flow: re-verify a measurement every N openings (O-3) */
+};
+
+/* BR-1 / BR-2 — functions with no cylinder. The rule everything rests on. */
+const UNKEYED = ["Privacy","Passage","Closet","Dummy"];
+const isKeyed = f => !!f && !UNKEYED.includes(f) && f !== "Unknown";
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════ */
+let S=null, editIdx=-1, memoryOnly=false, db=null, dirty=false;
+
+function blank(){
+ const d=new Date();
+ const id="GLK-R-"+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+ return {v:1, id, date:d.toISOString().slice(0,10), by:"", cust:"", phone:"", email:"",
+   addr:"", city:"Fort Smith", zip:"", ptype:"", own:"", trig:"", reason:"",
+   std:{thk:"",bs:"",cb:"",verified:[]},
+   last:{dtype:"Interior",mat:"Wood hollow",cond:"Good"},   /* F-1 carry-forward */
+   openings:[], exportedAt:null};
+}
+
+/* storage */
+function openDB(){return new Promise(r=>{try{
+ const q=indexedDB.open("glk_survey_p1",1);
+ q.onupgradeneeded=e=>e.target.result.createObjectStore("kv");
+ q.onsuccess=e=>{db=e.target.result;r(1)};
+ q.onerror=()=>{memoryOnly=true;r(0)};
+}catch(e){memoryOnly=true;r(0)}})}
+function put(v){if(db)try{db.transaction("kv","readwrite").objectStore("kv").put(v,"cur")}catch(e){}}
+function getSaved(){return new Promise(r=>{if(!db)return r(null);try{
+ const q=db.transaction("kv","readonly").objectStore("kv").get("cur");
+ q.onsuccess=()=>r(q.result||null); q.onerror=()=>r(null);
+}catch(e){r(null)}})}
+
+function save(markDirty){
+ if(markDirty!==false) dirty=true;
+ put(JSON.parse(JSON.stringify(S)));
+ paintFlag();
+}
+/* BR-16 — export state */
+function paintFlag(){
+ const f=document.getElementById("flagbar");
+ if(memoryOnly){f.className="flag dirty";f.textContent="⚠ Not saved to this device — export before closing";return}
+ if(!S.exportedAt){f.className="flag";f.textContent="Not exported yet";return}
+ if(dirty){f.className="flag dirty";f.textContent="⚠ Changed since last export ("+S.exportedAt+")"}
+ else{f.className="flag";f.textContent="Exported "+S.exportedAt}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════════ */
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const opts=(a,v)=>"<option value=''>—</option>"+a.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("");
+const short=k=>(k||"").split(" ")[0];
+function fill(el,arr){const s=document.getElementById(el);if(s)s.innerHTML=opts(arr,"")}
+
+function show(w){
+ ["prop","open","edit","rev"].forEach(k=>{const e=document.getElementById("s-"+k);if(e)e.classList.toggle("on",k===w)});
+ ["prop","open","rev"].forEach(k=>{const t=document.getElementById("t-"+k);if(t)t.classList.toggle("on",k===w)});
+ document.getElementById("editBar").style.display = w==="edit"?"flex":"none";
+ if(w==="open")paintList();
+ if(w==="rev")paintReview();
+ if(w==="prop")paintVerified();
+ window.scrollTo(0,0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROPERTY
+   ═══════════════════════════════════════════════════════════ */
+const PMAP={p_date:"date",p_by:"by",p_cust:"cust",p_phone:"phone",p_email:"email",
+ p_addr:"addr",p_city:"city",p_zip:"zip",p_ptype:"ptype",p_own:"own",p_trig:"trig",p_reason:"reason"};
+function bindProp(){
+ for(const [el,k] of Object.entries(PMAP)){
+  const n=document.getElementById(el);
+  const h=()=>{S[k]=n.value;save()};
+  n.addEventListener("input",h); n.addEventListener("change",h);
+ }
+ ["thk","bs","cb"].forEach(k=>{
+  const n=document.getElementById("p_"+k);
+  n.addEventListener("change",()=>{S.std[k]=n.value;save()});
+ });
+}
+function paintProp(){
+ document.getElementById("p_id").value=S.id;
+ for(const [el,k] of Object.entries(PMAP)) document.getElementById(el).value=S[k]||"";
+ ["thk","bs","cb"].forEach(k=>document.getElementById("p_"+k).value=S.std[k]||"");
+ paintVerified();
+}
+function paintVerified(){
+ const v=S.std.verified||[];
+ document.getElementById("verifiedList").textContent = v.length
+  ? "Verified at opening "+v.join(", ")+"."
+  : "No openings verified yet. Measure two or three as you start.";
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OPENINGS
+   ═══════════════════════════════════════════════════════════ */
+function newOpening(){
+ const l=S.last;
+ S.openings.push({loc:"",dtype:l.dtype,mat:l.mat,cond:l.cond,
+   std:true,thk:"",bs:"",cb:"",devices:[],photos:[],notes:""});
+ editIdx=S.openings.length-1; save(); paintEditor(); show("edit");
+}
+function dupOpening(i,ev){
+ ev.stopPropagation();
+ const c=JSON.parse(JSON.stringify(S.openings[i]));
+ c.photos=[]; c.notes=""; c.loc="";
+ S.openings.push(c); editIdx=S.openings.length-1; save(); paintEditor(); show("edit");
+}
+function paintList(){
+ paintVerifyBanner();
+ const b=document.getElementById("openList");
+ if(!S.openings.length){
+  b.innerHTML=`<div class="empty">No openings yet.<br>Walk the property and add them as you go.</div>`;return;
+ }
+ b.innerHTML=S.openings.map((o,i)=>{
+  const cyl=o.devices.filter(d=>isKeyed(d.func)).length;
+  const kws=[...new Set(o.devices.filter(d=>isKeyed(d.func)&&d.keyway).map(d=>short(d.keyway)))];
+  const nk=[...new Set(o.devices.filter(d=>d.func&&!isKeyed(d.func)).map(d=>d.func))];
+  return `<div class="opening${o.std?"":" nonstd"}">
+   <div class="body" onclick="editOpening(${i})">
+    <div><span class="num">${i+1}</span><span class="name">${esc(o.loc)||"(unnamed)"}</span></div>
+    <div class="meta">${esc(o.dtype)||"—"} · ${o.devices.length} device${o.devices.length===1?"":"s"} · ${cyl} cylinder${cyl===1?"":"s"}${o.photos.length?" · "+o.photos.length+"📷":""}${o.std?"":" · non-standard"}</div>
+    <div>${kws.map(k=>`<span class="tag key">${esc(k)}</span>`).join("")}${nk.map(f=>`<span class="tag nokey">${esc(f)}</span>`).join("")}</div>
+   </div>
+   <button class="dup" onclick="dupOpening(${i},event)">Copy</button>
+  </div>`;
+ }).join("");
+}
+function editOpening(i){editIdx=i;paintEditor();show("edit")}
+
+/* verification prompt every N openings */
+function paintVerifyBanner(){
+ const n=S.openings.length, box=document.getElementById("verifyBanner");
+ const due = n>0 && n % L.verifyEvery === 0 && !(S.std.verified||[]).includes(n);
+ box.innerHTML = due
+  ? `<div class="verify"><b>Tolerance check — opening ${n}</b>
+     Measure this one. If it matches the standard, confirm. If not, open it and mark it non-standard.
+     <button class="btn brass" style="margin-top:9px" onclick="confirmVerify(${n})">Measured — matches standard</button></div>`
+  : "";
+}
+function confirmVerify(n){
+ S.std.verified=S.std.verified||[];
+ if(!S.std.verified.includes(n))S.std.verified.push(n);
+ save(); paintVerifyBanner();
+}
+
+/* ── editor ── */
+function paintEditor(){
+ const o=S.openings[editIdx];
+ document.getElementById("e_num").textContent=editIdx+1;
+ document.getElementById("e_loc").value=o.loc||"";
+ ["dtype","mat","cond"].forEach(k=>{
+  const s=document.getElementById("e_"+k);
+  s.innerHTML=opts(L[k==="dtype"?"dtype":k==="mat"?"mat":"cond"],o[k]);
+ });
+ document.getElementById("e_notes").value=o.notes||"";
+ paintLocChips(); paintPresets(); paintDevices(); paintStd(); paintPhotos();
+}
+function paintLocChips(){
+ const o=S.openings[editIdx];
+ document.getElementById("locChips").innerHTML=L.locs.map(n=>
+  `<button class="${o.loc===n?"on":""}" onclick="setLoc('${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("");
+}
+function setLoc(n){
+ S.openings[editIdx].loc=n;
+ document.getElementById("e_loc").value=n;
+ paintLocChips(); save();
+}
+function paintPresets(){
+ document.getElementById("presetChips").innerHTML=L.presets.map((p,i)=>
+  `<button class="preset" onclick="applyPreset(${i})">${esc(p.name)}</button>`).join("");
+}
+function applyPreset(i){
+ const p=L.presets[i], o=S.openings[editIdx];
+ o.devices = p.devices.map(d=>({type:d.type||"",func:d.func||"",mfr:d.mfr||"",
+   keyway:isKeyed(d.func)?(d.keyway||""):""}));
+ paintDevices(); save();
+}
+function addDevice(){
+ S.openings[editIdx].devices.push({type:"",func:"",mfr:"",keyway:""});
+ paintDevices(); save();
+}
+function paintDevices(){
+ const o=S.openings[editIdx];
+ document.getElementById("devList").innerHTML=o.devices.map((d,j)=>{
+  const keyed=isKeyed(d.func), unk=d.func==="Unknown";
+  return `<div class="dev">
+   <div class="hd"><b>Device ${j+1}</b><button class="x" onclick="delDevice(${j})">Remove</button></div>
+   <label>Type</label><select onchange="setDev(${j},'type',this.value)">${opts(L.devtype,d.type)}</select>
+   <label>Function</label><select onchange="setDev(${j},'func',this.value)">${opts(L.func,d.func)}</select>
+   ${d.func&&!keyed&&!unk?`<p class="hint">${esc(d.func)} has no cylinder. Keyway is switched off and this device cannot be counted as one.</p>`:""}
+   ${unk?`<p class="hint">Function unknown — excluded from the cylinder count until set.</p>`:""}
+   <label>Manufacturer</label><select onchange="setDev(${j},'mfr',this.value)">${opts(L.mfr,d.mfr)}</select>
+   <label>Keyway</label><select ${keyed?"":"disabled"} onchange="setDev(${j},'keyway',this.value)">${opts(L.keyway,d.keyway)}</select>
+  </div>`;
+ }).join("");
+}
+function setDev(j,k,v){
+ const d=S.openings[editIdx].devices[j];
+ d[k]=v;
+ if(k==="func"&&!isKeyed(v))d.keyway="";      /* BR-2 */
+ if(k==="func")paintDevices();
+ save();
+}
+function delDevice(j){S.openings[editIdx].devices.splice(j,1);paintDevices();save()}
+
+/* measurements — BR-11 */
+function paintStd(){
+ const o=S.openings[editIdx];
+ document.getElementById("stdBtn").textContent = o.std ? "✓ Property standard" : "Non-standard — measured";
+ document.getElementById("stdBtn").className = o.std ? "on" : "preset";
+ document.getElementById("stdFields").innerHTML = o.std
+  ? `<p class="hint">${esc(S.std.thk)||"—"} · ${esc(S.std.bs)||"—"} · ${esc(S.std.cb)||"—"}</p>`
+  : `<label>Thickness</label><select onchange="setStdF('thk',this.value)">${opts(L.thk,o.thk)}</select>
+     <label>Backset</label><select onchange="setStdF('bs',this.value)">${opts(L.bs,o.bs)}</select>
+     <label>Cross bore</label><select onchange="setStdF('cb',this.value)">${opts(L.cb,o.cb)}</select>`;
+}
+function toggleStd(){S.openings[editIdx].std=!S.openings[editIdx].std;paintStd();save()}
+function setStdF(k,v){S.openings[editIdx][k]=v;save()}
+
+/* photos */
+function addPhotos(inp){
+ [...inp.files].forEach(f=>{
+  const r=new FileReader();
+  r.onload=e=>{const img=new Image();img.onload=()=>{
+   const m=1200,s=Math.min(1,m/Math.max(img.width,img.height));
+   const c=document.createElement("canvas");
+   c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+   c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+   S.openings[editIdx].photos.push(c.toDataURL("image/jpeg",0.7));
+   paintPhotos();save();
+  };img.src=e.target.result};
+  r.readAsDataURL(f);
+ });
+ inp.value="";
+}
+function paintPhotos(){
+ document.getElementById("photoList").innerHTML=S.openings[editIdx].photos.map((p,i)=>
+  `<div class="ph"><img src="${p}"><button onclick="delPhoto(${i})">×</button></div>`).join("");
+}
+function delPhoto(i){S.openings[editIdx].photos.splice(i,1);paintPhotos();save()}
+
+function saveOpening(then){
+ const o=S.openings[editIdx];
+ o.loc=document.getElementById("e_loc").value;
+ ["dtype","mat","cond"].forEach(k=>o[k]=document.getElementById("e_"+k).value);
+ o.notes=document.getElementById("e_notes").value;
+ S.last={dtype:o.dtype,mat:o.mat,cond:o.cond};    /* F-1 */
+ save();
+ then==="next"?newOpening():show("open");
+}
+function deleteOpening(){
+ if(!confirm("Delete opening "+(editIdx+1)+"?"))return;
+ S.openings.splice(editIdx,1);save();show("open");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REVIEW  — BR-7, BR-8
+   ═══════════════════════════════════════════════════════════ */
+function analyse(){
+ let cyl=0,unk=0,noKw=0,noLoc=0,noDev=0,ph=0;
+ S.openings.forEach(o=>{
+  ph+=o.photos.length;
+  if(!o.loc)noLoc++;
+  if(!o.devices.length)noDev++;
+  o.devices.forEach(d=>{
+   if(d.func==="Unknown")unk++;
+   if(isKeyed(d.func)){cyl++;if(!d.keyway||d.keyway==="Unknown")noKw++;}
+  });
+ });
+ return {cyl,unk,noKw,noLoc,noDev,ph};
+}
+function paintReview(){
+ const a=analyse(); let h="";
+ if(!S.std.thk||!S.std.bs) h+=`<div class="alert warn"><b>Measurement standard not set</b>Set it on the Property screen, or the survey PDF can't state what the doors are.</div>`;
+ if(!(S.std.verified||[]).length && S.openings.length) h+=`<div class="alert warn"><b>No openings verified</b>Measure two or three and confirm them, so the PDF can say which were checked.</div>`;
+ if(a.noLoc) h+=`<div class="alert warn"><b>${a.noLoc} opening${a.noLoc===1?"":"s"} with no location name</b></div>`;
+ if(a.noDev) h+=`<div class="alert warn"><b>${a.noDev} opening${a.noDev===1?"":"s"} with no devices</b>Fine if the doorway is empty — otherwise fill it in.</div>`;
+ if(a.unk)   h+=`<div class="alert warn"><b>${a.unk} device${a.unk===1?"":"s"} with unknown function</b>Excluded from the cylinder count until set.</div>`;
+ if(a.noKw)  h+=`<div class="alert warn"><b>${a.noKw} cylinder${a.noKw===1?"":"s"} with no keyway recorded</b>You can't plan keying or order blanks without it.</div>`;
+ if(!h&&S.openings.length) h=`<div class="alert ok"><b>Survey complete</b>Nothing outstanding.</div>`;
+ document.getElementById("flags").innerHTML=h;
+
+ document.getElementById("counts").innerHTML=`
+  <div class="count"><span>Openings</span><b>${S.openings.length}</b></div>
+  <div class="count big"><span>Keyed cylinders</span><b>${a.cyl}</b></div>
+  <div class="count"><span>Non-standard openings</span><b>${S.openings.filter(o=>!o.std).length}</b></div>
+  <div class="count"><span>Openings verified</span><b>${(S.std.verified||[]).length}</b></div>
+  <div class="count"><span>Photos</span><b>${a.ph}</b></div>`;
+ paintFlag();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SURVEY PDF  — BR-12 disclosure
+   ═══════════════════════════════════════════════════════════ */
+function makePDF(){
+ const a=analyse(), v=S.std.verified||[];
+ let h=`<h2>Door Survey</h2>
+ <div style="font-size:9pt;color:#555;margin-bottom:9px">Garrison Lock &amp; Key · ${esc(S.id)} · ${esc(S.date)}</div>
+ <table>
+  <tr><th>Customer</th><td>${esc(S.cust)}</td><th>Phone</th><td>${esc(S.phone)}</td></tr>
+  <tr><th>Property</th><td colspan="3">${esc(S.addr)}, ${esc(S.city)} ${esc(S.zip)}</td></tr>
+  <tr><th>Surveyed by</th><td>${esc(S.by)}</td><th>Openings</th><td>${S.openings.length}</td></tr>
+  ${S.reason?`<tr><th>Reason</th><td colspan="3">${esc(S.reason)}</td></tr>`:""}
+ </table>`;
+
+ h+=`<h3>Openings</h3><table>
+ <tr><th>#</th><th>Location</th><th>Door</th><th>Material</th><th>Device</th>
+ <th>Function</th><th>Make</th><th>Keyway</th><th>Condition</th></tr>`;
+ S.openings.forEach((o,i)=>{
+  if(!o.devices.length){
+   h+=`<tr><td>${i+1}</td><td>${esc(o.loc)}</td><td>${esc(o.dtype)}</td><td>${esc(o.mat)}</td>
+   <td colspan="4">No hardware</td><td>${esc(o.cond)}</td></tr>`;
+  }
+  o.devices.forEach((d,j)=>{
+   h+=`<tr>${j?`<td></td><td></td><td></td><td></td>`:
+     `<td>${i+1}</td><td>${esc(o.loc)}${o.std?"":" *"}</td><td>${esc(o.dtype)}</td><td>${esc(o.mat)}</td>`}
+    <td>${esc(d.type)}</td><td>${esc(d.func)}</td><td>${esc(d.mfr)}</td>
+    <td>${isKeyed(d.func)?esc(short(d.keyway)):"—"}</td>
+    ${j?"<td></td>":`<td>${esc(o.cond)}</td>`}</tr>`;
+  });
+  if(o.notes)h+=`<tr><td></td><td colspan="8"><i>${esc(o.notes)}</i></td></tr>`;
+ });
+ h+=`</table>`;
+
+ /* BR-12 */
+ h+=`<h3>Measurements</h3>
+ <p class="note">Property standard: ${esc(S.std.thk)||"not set"} thickness,
+ ${esc(S.std.bs)||"not set"} backset, ${esc(S.std.cb)||"not set"} cross bore.
+ ${v.length?"Verified at opening "+v.join(", ")+".":"No openings individually verified."}
+ Remaining openings recorded as standard unless marked with an asterisk.</p>`;
+
+ h+=`<h3>Summary</h3><table>
+  <tr><th>Openings surveyed</th><td>${S.openings.length}</td>
+      <th>Keyed cylinders</th><td>${a.cyl}</td></tr>
+  <tr><th>Non-standard openings</th><td>${S.openings.filter(o=>!o.std).length}</td>
+      <th>Photographs</th><td>${a.ph}</td></tr></table>
+ <p class="note">This survey records the condition of the property as found on ${esc(S.date)}.
+ It is provided at no charge and carries no obligation.</p>`;
+
+ const ps=S.openings.flatMap((o,i)=>o.photos.map(p=>({p,n:i+1,l:o.loc})));
+ if(ps.length){
+  h+=`<h3>Photographs</h3>`;
+  ps.forEach(x=>h+=`<div class="ph"><img src="${x.p}"><div class="cap">#${x.n} ${esc(x.l)}</div></div>`);
+ }
+ document.getElementById("po").innerHTML=h;
+ setTimeout(()=>window.print(),150);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPORT / IMPORT  — BR-15, BR-16
+   ═══════════════════════════════════════════════════════════ */
+function exportData(){
+ S.exportedAt=new Date().toLocaleString();
+ const blob=new Blob([JSON.stringify(S)],{type:"application/json"});
+ const u=URL.createObjectURL(blob), a=document.createElement("a");
+ a.href=u; a.download=(S.id||"survey")+"_"+(S.addr||"").replace(/[^a-z0-9]+/gi,"-").slice(0,30)+".json";
+ a.click(); setTimeout(()=>URL.revokeObjectURL(u),2000);
+ dirty=false; save(false); paintFlag();
+}
+function importData(inp){
+ const f=inp.files[0]; if(!f)return;
+ const r=new FileReader();
+ r.onload=e=>{
+  try{
+   const d=JSON.parse(e.target.result);
+   if(!d.openings) throw new Error("not a survey file");
+   if(!confirm("Load "+(d.id||"survey")+" — "+(d.addr||"no address")+"? This replaces what's on screen."))return;
+   S=d;
+   if(!S.std)S.std={thk:"",bs:"",cb:"",verified:[]};
+   if(!S.std.verified)S.std.verified=[];
+   if(!S.last)S.last={dtype:"Interior",mat:"Wood hollow",cond:"Good"};
+   dirty=false; paintProp(); save(false); show("open");
+  }catch(err){ alert("Couldn't read that file: "+err.message); }
+ };
+ r.readAsText(f); inp.value="";
+}
+function resetAll(){
+ if(!confirm("Clear this survey and start a new one? Export first."))return;
+ S=blank(); dirty=false; paintProp(); save(false); show("prop");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+   ═══════════════════════════════════════════════════════════ */
+(async function(){
+ await openDB();
+ fill("p_ptype",L.ptype); fill("p_own",L.owner); fill("p_trig",L.trigger);
+ fill("p_thk",L.thk); fill("p_bs",L.bs); fill("p_cb",L.cb);
+ const saved=await getSaved();
+ S=saved||blank();
+ if(!S.std)S.std={thk:"",bs:"",cb:"",verified:[]};
+ if(!S.std.verified)S.std.verified=[];
+ if(!S.last)S.last={dtype:"Interior",mat:"Wood hollow",cond:"Good"};
+ paintProp(); bindProp(); paintFlag();
+ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+})();
+</script>
+</body>
+</html>
