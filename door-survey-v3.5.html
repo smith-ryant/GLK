@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Door Survey">
+<title>Door Survey — Garrison Lock &amp; Key</title>
+<style>
+:root{--navy:#192840;--navy2:#24374f;--brass:#b8852a;--brasslt:#d9a94a;
+--bg:#f4f2ec;--card:#fff;--ink:#1b1f24;--mute:#6b7280;--line:#ddd8cc;
+--red:#b4322a;--redbg:#fcefee;--green:#256b4a;--greenbg:#eef6f1;--amber:#8a6100;--amberbg:#fdf6e3;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top) + 9px) 14px 8px;
+position:sticky;top:0;z-index:50;border-bottom:3px solid var(--brass)}
+header h1{margin:0;font-size:14px;letter-spacing:.13em;text-transform:uppercase;font-weight:700}
+header .sub{font-size:11px;color:#b9c3d1;margin-top:1px}
+nav{display:flex;background:var(--navy2);position:sticky;top:0;z-index:49}
+nav button{flex:1;background:none;border:none;color:#b9c3d1;padding:11px 3px;font-size:13px;
+font-weight:600;border-bottom:3px solid transparent;font-family:inherit}
+nav button.on{color:#fff;border-bottom-color:var(--brasslt)}
+main{padding:12px 12px 100px;max-width:760px;margin:0 auto}
+.screen{display:none}.screen.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+color:var(--mute);margin:13px 0 5px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:11px 10px;font-size:16px;font-family:inherit;
+border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+input:disabled,select:disabled{background:#eceae4;color:#9aa0a6}
+textarea{min-height:60px;resize:vertical}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+button.btn{width:100%;padding:14px;border:none;border-radius:8px;background:var(--navy);color:#fff;
+font-size:16px;font-weight:700;font-family:inherit;margin-top:13px}
+button.btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+button.btn.brass{background:var(--brass)}
+button.btn.danger{background:#fff;color:var(--red);border:2px solid var(--red)}
+button.btn:active{opacity:.72}
+h2.sec{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--navy);
+margin:20px 0 9px;padding-bottom:5px;border-bottom:2px solid var(--brass)}
+h2.sec:first-child{margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.chips button{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:9px 13px;
+font-size:14px;font-family:inherit;color:var(--ink)}
+.chips button.on{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600}
+.chips button.preset{border-color:var(--brass);color:#7d5a12;font-weight:600}
+.chips button.preset:active{background:var(--brass);color:#fff}
+.opening{background:#fff;border:1px solid var(--line);border-left:5px solid var(--navy);
+border-radius:8px;padding:11px;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px}
+.opening.nonstd{border-left-color:var(--brass)}
+.opening.issue{border-left-color:var(--red)}
+.opening .body{flex:1;min-width:0}
+.opening .num{display:inline-block;background:var(--navy);color:#fff;font-weight:700;font-size:11px;
+padding:2px 8px;border-radius:11px;margin-right:6px}
+.opening .name{font-weight:700}
+.opening .meta{font-size:13px;color:var(--mute);margin-top:3px}
+.opening .dup{background:#f0ede5;border:1px solid var(--line);border-radius:7px;
+padding:8px 10px;font-size:12px;font-weight:700;color:var(--navy);font-family:inherit}
+.tag{display:inline-block;background:#eceae4;border-radius:5px;padding:1px 7px;font-size:12px;
+margin:3px 4px 0 0;color:#3c4450}
+.tag.key{background:#e6eef7;color:var(--navy);font-weight:600}
+.tag.nokey{background:#efeae4;color:#7a6a52}
+.tag.bad{background:var(--redbg);color:#7d201a;font-weight:600}
+.dev{border:1px solid var(--line);border-radius:8px;padding:11px;margin-bottom:9px;background:#fbfaf7}
+.dev.bad{border-color:#e0a9a3;background:#fdf6f5}
+.dev .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.x{background:none;border:none;color:var(--red);font-size:13px;font-weight:700;padding:4px 6px;font-family:inherit}
+.alert{border-radius:8px;padding:12px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.alert.bad{background:var(--redbg);border:1px solid #e8b6b1;color:#7d201a}
+.alert.warn{background:var(--amberbg);border:1px solid #e2cd94;color:#6d4c00}
+.alert.ok{background:var(--greenbg);border:1px solid #bcd9c9;color:var(--green)}
+.alert b{display:block;margin-bottom:5px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.jump{display:inline-block;background:#fff;border:1.5px solid currentColor;border-radius:13px;
+padding:3px 11px;font-size:13px;font-weight:700;font-family:inherit;margin:4px 5px 0 0;color:inherit}
+.verify{background:var(--amberbg);border:2px solid var(--brass);border-radius:9px;padding:12px;margin-bottom:12px}
+.verify b{display:block;font-size:13px;color:#6d4c00;margin-bottom:6px}
+.photos{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.photos .ph{position:relative;width:74px;height:74px;border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.photos .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.photos .ph button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;
+border:none;border-radius:50%;width:21px;height:21px;font-size:12px;line-height:1;font-family:inherit}
+.count{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.count:last-child{border-bottom:none}
+.count b{font-variant-numeric:tabular-nums}
+.count.big{font-size:17px;font-weight:700;color:var(--navy)}
+.empty{text-align:center;color:var(--mute);padding:32px 16px;font-size:15px}
+.hint{font-size:12px;color:var(--mute);margin-top:5px;line-height:1.4}
+.bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);
+padding:9px 12px calc(9px + env(safe-area-inset-bottom));z-index:60;display:flex;gap:8px}
+.bar button{flex:1;margin-top:0;padding:13px}
+.flag{text-align:center;font-size:11px;padding:7px;color:var(--mute)}
+.flag.dirty{color:var(--red);font-weight:700}
+.cam{display:block;text-align:center;background:var(--navy);color:#fff;border-radius:8px;
+padding:14px;font-weight:700;font-size:16px}
+.cam input{display:none}
+
+.scn{background:#fff;border:1px solid var(--line);border-left:5px solid var(--brass);
+border-radius:8px;padding:12px;margin-bottom:9px;display:flex;gap:9px;align-items:flex-start}
+.scn .body{flex:1;min-width:0}
+.scn .nm{font-weight:700;font-size:16px}
+.scn .tot{font-size:19px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+.scn .meta{font-size:13px;color:var(--mute);margin-top:3px}
+.ln{border:1px solid var(--line);border-radius:7px;padding:9px;margin-bottom:7px;background:#fff}
+.ln.off{opacity:.45;background:#f4f2ec}
+.ln .top{display:flex;gap:8px;align-items:center}
+.ln .top b{flex:1;font-size:14px}
+.ln .sub{font-size:12px;color:var(--mute);margin:2px 0 6px}
+.ln select{font-size:15px;padding:8px}
+.ck{width:26px;height:26px;flex:none}
+.grp{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+color:var(--navy);margin:14px 0 6px;padding-bottom:3px;border-bottom:1px solid var(--brass)}
+.tot{font-variant-numeric:tabular-nums}
+.trow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+.trow:last-child{border-bottom:none}
+.trow.sum{font-weight:700;font-size:17px;color:var(--navy);border-top:2px solid var(--navy);padding-top:10px}
+.hwl{border:1px solid var(--line);border-radius:7px;padding:10px;margin-bottom:8px;background:#fbfaf7}
+@media print{
+ header,nav,.bar,button,.no-print,.cam,.flag{display:none!important}
+ body{background:#fff;font-size:10.5pt}
+ main{padding:0;max-width:none}
+ .screen{display:none!important}
+ #po{display:block!important}
+}
+#po{display:none}
+#po h2{font-size:15pt;margin:0 0 2px;color:#192840}
+#po h3{margin:15px 0 5px;font-size:12pt;border-bottom:2px solid #192840;padding-bottom:3px}
+#po table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-bottom:9px}
+#po th,#po td{border:1px solid #999;padding:3px 5px;text-align:left;vertical-align:top}
+#po th{background:#eee}
+#po .note{font-size:8.5pt;font-style:italic;color:#444;margin:6px 0 12px}
+#po .obs{font-size:9.5pt;border:1px solid #999;padding:8px;white-space:pre-wrap;margin-bottom:10px}
+#po .ph{display:inline-block;width:31%;margin:1%;vertical-align:top}
+#po .ph img{width:100%;border:1px solid #999}
+#po .cap{font-size:7.5pt}
+#po .remit{display:flex;gap:14px;margin-top:18px;page-break-inside:avoid;break-inside:avoid}
+#po .remit>div{flex:1;border:1.5px solid #192840;padding:9px 12px;font-size:9.5pt;line-height:1.45}
+#po .remit .hd{font-size:8pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#192840;
+ border-bottom:1px solid #192840;padding-bottom:3px;margin-bottom:6px}
+#po .remit .ref{margin-top:6px;font-size:8.5pt;color:#444}
+</style>
+</head>
+<body>
+
+<header><h1>Door Survey</h1><div class="sub">Garrison Lock &amp; Key · v3.5</div></header>
+
+<nav>
+ <button id="t-prop" class="on" onclick="show('prop')">Property</button>
+ <button id="t-open" onclick="show('open')">Openings</button>
+ <button id="t-quote" onclick="show('quote')">Quotes</button>
+ <button id="t-work" onclick="show('work')">Work</button>
+ <button id="t-rev" onclick="show('rev')">Review</button>
+</nav>
+
+<main>
+
+<section id="s-prop" class="screen on">
+ <div class="card">
+  <h2 class="sec">Survey</h2>
+  <label>Survey ID</label><input id="p_id" readonly>
+  <div class="row">
+   <div><label>Date</label><input id="p_date" type="date"></div>
+   <div><label>Surveyed by</label><input id="p_by" placeholder="Ryan"></div>
+  </div>
+ </div>
+ <div class="card">
+  <h2 class="sec">Customer</h2>
+  <label>Name</label><input id="p_cust">
+  <label>Phone</label><input id="p_phone" type="tel" inputmode="tel">
+  <label>Email</label><input id="p_email" type="email" inputmode="email" autocapitalize="off">
+ </div>
+ <div class="card">
+  <h2 class="sec">Property</h2>
+  <label>Service address</label><input id="p_addr">
+  <div class="row">
+   <div><label>City</label><input id="p_city"></div>
+   <div><label>ZIP</label><input id="p_zip" inputmode="numeric"></div>
+  </div>
+  <label>Property type</label><select id="p_ptype"></select>
+  <label>Owner or tenant</label><select id="p_own"></select>
+  <label>Trigger event</label><select id="p_trig"></select>
+  <label>Reason for call — their words</label>
+  <textarea id="p_reason"></textarea>
+ </div>
+ <div class="card">
+  <h2 class="sec">Measurement standard</h2>
+  <p class="hint" style="margin:0 0 10px">Measure two or three doors, set it once, every opening inherits it.
+  Any opening you measure individually counts as verified.</p>
+  <label>Thickness</label><select id="p_thk"></select>
+  <label>Backset</label><select id="p_bs"></select>
+  <label>Cross bore</label><select id="p_cb"></select>
+  <div id="verifiedList" class="hint"></div>
+ </div>
+</section>
+
+<section id="s-open" class="screen">
+ <div id="verifyBanner"></div>
+ <div id="openList"></div>
+ <button class="btn brass" onclick="newOpening()">+ Add opening</button>
+</section>
+
+<section id="s-edit" class="screen">
+ <div class="card">
+  <h2 class="sec">Opening <span id="e_num"></span></h2>
+  <label>Location</label>
+  <div class="chips" id="locChips"></div>
+  <input id="e_loc" placeholder="or type a name">
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Devices</h2>
+  <label>Presets — one tap</label>
+  <div class="chips" id="presetChips"></div>
+  <div id="devList" style="margin-top:10px"></div>
+  <button class="btn alt" onclick="addDevice()">+ Add device manually</button>
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Door</h2>
+  <label>Door type</label><select id="e_dtype"></select>
+  <label>Material</label><select id="e_mat"></select>
+  <label>Door / frame condition</label><select id="e_cond"></select>
+  <label>Access</label><select id="e_access"></select>
+  <div id="accessHint"></div>
+  <label>Measurements</label>
+  <div class="chips"><button id="stdBtn" onclick="toggleStd()"></button></div>
+  <div id="stdFields"></div>
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Photos</h2>
+  <label class="cam">📷 Take photo
+   <input type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(this)"></label>
+  <label class="cam alt" style="background:#fff;color:var(--navy);border:2px solid var(--navy);margin-top:8px">
+   🖼 Choose from library
+   <input type="file" accept="image/*" multiple onchange="addPhotos(this)"></label>
+  <div id="photoList" class="photos"></div>
+ </div>
+
+ <div class="card">
+  <h2 class="sec">Notes</h2>
+  <textarea id="e_notes" placeholder="Split jamb, handleset inoperative, paint-bound…"></textarea>
+ </div>
+
+ <button class="btn danger" onclick="deleteOpening()">Delete this opening</button>
+</section>
+
+<section id="s-rev" class="screen">
+ <div id="flags"></div>
+ <div class="card"><h2 class="sec">Counts</h2><div id="counts"></div></div>
+ <div class="card">
+  <h2 class="sec">Surveyor's observations</h2>
+  <textarea id="r_obs" style="min-height:130px"
+   placeholder="What you found. Facts, not recommendations — those belong in the quote."></textarea>
+  <p class="hint">Prints at the end of the survey PDF.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Give to the customer</h2>
+  <button class="btn" onclick="makePDF()">Survey PDF — print or share</button>
+  <p class="hint">Opens the print sheet. Tap the share icon there to text, email, or save as PDF.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Keep your copy</h2>
+  <button class="btn brass" onclick="exportData()">Export data file</button>
+  <p class="hint">Save to iCloud Drive from the share sheet. This is the record — not the iPad.</p>
+  <label style="margin-top:16px">Load a saved survey</label>
+  <input type="file" accept=".json,application/json" onchange="importData(this)" style="font-size:14px;padding:8px">
+  <p class="hint">Replaces what is on screen. Export first.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Survey</h2>
+  <button class="btn danger" onclick="resetAll()">Start a new survey</button>
+ </div>
+</section>
+
+
+<section id="s-quote" class="screen">
+ <div id="scnList"></div>
+ <button class="btn brass" onclick="newScenario()">+ New quote option</button>
+ <button class="btn alt" onclick="comparePDF()">Comparison sheet — all options</button>
+ <button class="btn alt" onclick="show('price')">Price book</button>
+</section>
+
+<section id="s-scen" class="screen">
+ <div class="card">
+  <h2 class="sec">Option</h2>
+  <label>Name the customer sees</label>
+  <input id="sc_name" placeholder="Exterior keyed only">
+  <label>One-line description</label>
+  <textarea id="sc_desc" style="min-height:50px"></textarea>
+ </div>
+ <div class="card">
+  <h2 class="sec">Include</h2>
+  <div class="chips">
+   <button onclick="bulk('all')">All</button>
+   <button onclick="bulk('none')">None</button>
+   <button onclick="bulk('ext')">Exterior</button>
+   <button onclick="bulk('keyed')">Keyed only</button>
+   <button onclick="bulk('flagged')">Needs attention</button>
+  </div>
+  <button class="btn alt" onclick="proposeAll()">Propose actions from condition</button>
+  <p class="hint">Fills every included device with a suggested action. All of them are editable — nothing reaches the quote unseen.</p>
+ </div>
+ <div id="lineList"></div>
+ <div class="card">
+  <h2 class="sec">Keys to cut</h2>
+  <div id="keyList"></div>
+ </div>
+ <div class="card">
+  <h2 class="sec">Hardware</h2>
+  <div id="hwList"></div>
+  <button class="btn alt" onclick="addHw()">+ Add hardware line</button>
+  <p class="hint">Your cost and markup stay internal. The customer sees product, grade, finish and line price.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Other services</h2>
+  <div id="exList"></div>
+  <button class="btn alt" onclick="addExtra()">+ Add a service</button>
+  <p class="hint">For work the quote doesn't add on its own — strike reinforcement, hinge screws, a lockout, an after-hours charge, or anything you've added to the price book.</p>
+ </div>
+ <div class="card">
+  <h2 class="sec">Total</h2>
+  <div id="scTotals"></div>
+ </div>
+ <div class="card">
+  <h2 class="sec">Send</h2>
+  <button class="btn" onclick="quotePDF()">Quote PDF — print or share</button>
+  <button class="btn danger" onclick="delScenario()">Delete this option</button>
+ </div>
+</section>
+
+<section id="s-work" class="screen">
+ <div class="card">
+  <h2 class="sec">Job</h2>
+  <label>Option the customer accepted</label>
+  <select id="w_sid" onchange="setWorkOption(this.value)"></select>
+  <div id="w_head"></div>
+ </div>
+ <div id="w_body"></div>
+</section>
+
+<section id="s-price" class="screen">
+ <div class="card">
+  <h2 class="sec">Settings</h2>
+  <div id="pbSettings"></div>
+ </div>
+ <div class="card">
+  <h2 class="sec">Labour and service</h2>
+  <p class="hint">Changes save on this device and apply to every survey, new or loaded.</p>
+  <div id="pbRates"></div>
+  <button class="btn alt" onclick="addRate()">+ Add a service</button>
+ </div>
+ <div class="card">
+  <h2 class="sec">Backup</h2>
+  <button class="btn alt" onclick="exportPB()">Save price book to a file</button>
+  <label>Load price book from a file</label>
+  <input type="file" accept=".json,application/json" onchange="importPB(this)" style="font-size:14px;padding:8px">
+  <p class="hint">Save a copy to iCloud Drive after you change prices. If this iPad's browser data is ever cleared, load it back from here. An exported survey file works too.</p>
+ </div>
+ <button class="btn alt" onclick="show('quote')">Back to quotes</button>
+</section>
+
+<div id="po"></div>
+<div class="flag" id="flagbar"></div>
+</main>
+
+<div class="bar" id="scenBar" style="display:none">
+ <button class="btn alt" onclick="show('quote')">Done</button>
+</div>
+<div class="bar" id="editBar" style="display:none">
+ <button class="btn alt" onclick="saveOpening('open')">Done</button>
+ <button class="btn brass" onclick="saveOpening('next')">Save + next</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   LISTS — edit these and the app changes. Nothing else to touch.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Amendment 0.3 change 6 — functions split by whether a cylinder exists */
+const FUNC_KEYED   = ["Entry / keyed","Storeroom — always locked outside","Double cylinder — keyed both sides"];
+const FUNC_UNKEYED = ["Thumb latch — no cylinder","Passage — latches, no lock","Privacy — turn button",
+                      "Closet","Dummy — fixed, no latch","Empty bore — prepped, no hardware","Unknown"];
+const isKeyed = f => FUNC_KEYED.includes(f);
+
+/* Amendment 0.3 change 3 — device condition. First two do not flag. */
+const COND_OK  = ["Operates correctly","Finish worn — cosmetic only"];
+const COND_BAD = ["Stiff or binding","Painted over","Latch or bolt will not operate","Strike misaligned",
+                  "Loose — fasteners stripped","Cylinder spins freely","Damaged",
+                  "Destroyed or missing parts","Missing entirely","No key available — not tested","Not tested"];
+
+const L = {
+ ptype:["Single family","Duplex","Townhome","Condo","Rental","Mobile home"],
+ owner:["Owner","Tenant"],
+ trigger:["Move-in","Tenant turnover","Lost key","Break-in","Separation","Contractor access",
+          "Lockout","New purchase / remodel","Other"],
+ dtype:["Interior","Front entry","Side entry","Back / patio","French pair","Garage man-door","Exterior other"],
+ mat:["Wood hollow","Wood solid","Steel","Fiberglass","Glass","Unknown"],
+ cond:["Good","Fair","Poor — see notes","No door or frame"],
+ thk:["1-3/4\"","1-3/8\"","Other","Not measured"],
+ bs:["2-3/8\"","2-3/4\"","Other","Not measured"],
+ cb:["2-1/8\"","Other","None","Not measured"],
+
+ /* change 1 and 7 — new device types */
+ devtype:["Knob","Lever","Handleset","Deadbolt","Mortise","Deadlatch","Exit device",
+          "Surface bolt","Flush bolt","Ball catch / roller catch",
+          "Empty bore — prepped, no hardware","Hole filled or plugged","Bore damaged or oversize"],
+ borekind:["Knob bore","Deadbolt bore","Mortise pocket","Other"],
+ boredia:["2-1/8\"","1-1/2\"","Other","Not measured"],
+ mfr:["Kwikset","Schlage","Defiant","Baldwin","Emtek","Weiser","Other","Unknown","N/A"],
+ keyway:["KW1 (Kwikset / Ilco 1176)","SC1 (Schlage)","WR5 (Weiser)","Other","Unknown"],
+
+ /* change 8 — opening access */
+ access:["Opened and inspected","Could not open — secured",
+         "Could not access — blocked or occupied","Not inspected"],
+
+ locs:["Front Entry","Back Door","Garage Man-Door","Patio","Master Suite","BR1","BR2","BR3","BR4",
+       "Bath1","Bath2","Closet","Utility","Laundry","Office","Pantry","Storage","Outbuilding",
+       "Safe room","Water closet","Foyer","Hall"],
+
+ presets:[
+  {name:"Interior privacy",devices:[{type:"Lever",func:"Privacy — turn button",mfr:"Kwikset",cond:"Operates correctly"}]},
+  {name:"Interior passage",devices:[{type:"Lever",func:"Passage — latches, no lock",mfr:"Kwikset",cond:"Operates correctly"}]},
+  {name:"Closet",devices:[{type:"Lever",func:"Closet",mfr:"Kwikset",cond:"Operates correctly"}]},
+  {name:"Entry lever + DB",devices:[
+    {type:"Lever",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)",cond:"Operates correctly"},
+    {type:"Deadbolt",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)",cond:"Operates correctly"}]},
+  {name:"Thumb handleset + DB",devices:[
+    {type:"Handleset",func:"Thumb latch — no cylinder",mfr:"Kwikset",cond:"Operates correctly"},
+    {type:"Deadbolt",func:"Entry / keyed",mfr:"Schlage",keyway:"SC1 (Schlage)",cond:"Operates correctly"}]},
+  {name:"Keyed handleset + DB",devices:[
+    {type:"Handleset",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)",cond:"Operates correctly"},
+    {type:"Deadbolt",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)",cond:"Operates correctly"}]},
+  {name:"Deadbolt only",devices:[
+    {type:"Deadbolt",func:"Entry / keyed",mfr:"Kwikset",keyway:"KW1 (Kwikset / Ilco 1176)",cond:"Operates correctly"}]},
+  {name:"French pair — ball catch",devices:[
+    {type:"Lever",func:"Dummy — fixed, no latch",mfr:"Kwikset",cond:"Operates correctly"},
+    {type:"Ball catch / roller catch",func:"Passage — latches, no lock",mfr:"Unknown",cond:"Operates correctly"}]},
+  {name:"Empty bore",devices:[{type:"Empty bore — prepped, no hardware",
+    func:"Empty bore — prepped, no hardware",mfr:"N/A",cond:"Missing entirely"}]},
+  {name:"No hardware",devices:[]}
+ ],
+ verifyEvery:5
+};
+
+const isBore = t => t === "Empty bore — prepped, no hardware";
+
+/* ═══════════════════════════════════════════════════════════════ */
+let S=null, editIdx=-1, memoryOnly=false, db=null, dirty=false;
+
+function blank(){
+ const d=new Date();
+ const id="GLK-R-"+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+ return {v:2,id,date:d.toISOString().slice(0,10),by:"",cust:"",phone:"",email:"",
+  addr:"",city:"Fort Smith",zip:"",ptype:"",own:"",trig:"",reason:"",obs:"",
+  std:{thk:"",bs:"",cb:"",verified:[]},
+  last:{dtype:"Interior",mat:"Wood hollow",cond:"Good"},
+  openings:[],scenarios:[],pb:PB,work:null,exportedAt:null};
+}
+/* A21 — old exports must load */
+function normalize(d){
+ d.v=2; d.obs=d.obs||"";
+ d.std=d.std||{thk:"",bs:"",cb:"",verified:[]};
+ d.std.verified=d.std.verified||[];
+ d.last=d.last||{dtype:"Interior",mat:"Wood hollow",cond:"Good"};
+ (d.openings||[]).forEach(o=>{
+  o.access=o.access||"Opened and inspected";
+  o.photos=o.photos||[]; o.devices=o.devices||[];
+  o.devices.forEach(dv=>{
+   dv.cond=dv.cond||"";
+   /* migrate old short function names */
+   const m={"Passage":"Passage — latches, no lock","Privacy":"Privacy — turn button",
+            "Dummy":"Dummy — fixed, no latch","Storeroom":"Storeroom — always locked outside"};
+   if(m[dv.func])dv.func=m[dv.func];
+  });
+ });
+ ensureQuoteOn(d);
+ return d;
+}
+function ensureQuoteOn(d){
+ d.pb=PB;            /* a loaded survey is priced from today's price book */
+ if(d.work===undefined)d.work=null;
+ if(!d.scenarios)d.scenarios=[];
+ (d.openings||[]).forEach(o=>{if(!o.uid)o.uid=uid();o.devices.forEach(x=>{if(!x.uid)x.uid=uid()})});
+}
+
+function openDB(){return new Promise(r=>{try{
+ const q=indexedDB.open("glk_survey_p1",1);
+ q.onupgradeneeded=e=>e.target.result.createObjectStore("kv");
+ q.onsuccess=e=>{db=e.target.result;r(1)}; q.onerror=()=>{memoryOnly=true;r(0)};
+}catch(e){memoryOnly=true;r(0)}})}
+function putKey(v,k){if(db)try{db.transaction("kv","readwrite").objectStore("kv").put(v,k)}catch(e){}}
+function put(v){putKey(v,"cur")}
+function getKey(k){return new Promise(r=>{if(!db)return r(null);try{
+ const q=db.transaction("kv","readonly").objectStore("kv").get(k);
+ q.onsuccess=()=>r(q.result||null); q.onerror=()=>r(null);}catch(e){r(null)}})}
+function getSaved(){return new Promise(r=>{if(!db)return r(null);try{
+ const q=db.transaction("kv","readonly").objectStore("kv").get("cur");
+ q.onsuccess=()=>r(q.result||null); q.onerror=()=>r(null);}catch(e){r(null)}})}
+let saveTimer=null;
+function flush(){ saveTimer=null; try{ put(S); }catch(e){} }
+function save(md){
+ if(md!==false)dirty=true;
+ paintFlag();
+ if(saveTimer)clearTimeout(saveTimer);
+ saveTimer=setTimeout(flush,400);     /* coalesce typing into one write */
+}
+function saveNow(md){ if(md!==false)dirty=true; if(saveTimer)clearTimeout(saveTimer); flush(); paintFlag(); }
+window.addEventListener("pagehide",flush);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flush()});
+function paintFlag(){
+ const f=document.getElementById("flagbar");
+ if(memoryOnly){f.className="flag dirty";f.textContent="⚠ Not saved to this device — export before closing";return}
+ if(!S.exportedAt){f.className="flag";f.textContent="Not exported yet";return}
+ f.className=dirty?"flag dirty":"flag";
+ f.textContent=(dirty?"⚠ Changed since last export ":"Exported ")+S.exportedAt;
+}
+
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const opts=(a,v)=>"<option value=''>—</option>"+a.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("");
+function funcOpts(v){
+ return "<option value=''>—</option>"+
+  "<optgroup label='Has a cylinder'>"+FUNC_KEYED.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("")+"</optgroup>"+
+  "<optgroup label='No cylinder'>"+FUNC_UNKEYED.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("")+"</optgroup>";
+}
+function condOpts(v){
+ return "<option value=''>—</option>"+
+  "<optgroup label='No action'>"+COND_OK.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("")+"</optgroup>"+
+  "<optgroup label='Needs attention'>"+COND_BAD.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("")+"</optgroup>";
+}
+const short=k=>(k||"").split(" ")[0];
+function fill(el,arr){const s=document.getElementById(el);if(s)s.innerHTML=opts(arr,"")}
+
+function show(w){
+ ["prop","open","edit","rev","quote","scen","price","work"].forEach(k=>{const e=document.getElementById("s-"+k);if(e)e.classList.toggle("on",k===w)});
+ ["prop","open","quote","work","rev"].forEach(k=>{const t=document.getElementById("t-"+k);if(t)t.classList.toggle("on",k===w)});
+ document.getElementById("editBar").style.display=w==="edit"?"flex":"none";
+ document.getElementById("scenBar").style.display=w==="scen"?"flex":"none";
+ if(w==="open")paintList(); if(w==="rev")paintReview(); if(w==="prop")paintVerified();
+ if(w==="quote")paintScnList(); if(w==="price")paintPrice(); if(w==="work")paintWork();
+ window.scrollTo(0,0);
+}
+
+/* PROPERTY */
+const PMAP={p_date:"date",p_by:"by",p_cust:"cust",p_phone:"phone",p_email:"email",p_addr:"addr",
+ p_city:"city",p_zip:"zip",p_ptype:"ptype",p_own:"own",p_trig:"trig",p_reason:"reason"};
+function bindProp(){
+ for(const [el,k] of Object.entries(PMAP)){
+  const n=document.getElementById(el), h=()=>{S[k]=n.value;save()};
+  n.addEventListener("input",h);n.addEventListener("change",h);
+ }
+ ["thk","bs","cb"].forEach(k=>{const n=document.getElementById("p_"+k);
+  n.addEventListener("change",()=>{S.std[k]=n.value;save()})});
+ const ob=document.getElementById("r_obs");
+ ob.addEventListener("input",()=>{S.obs=ob.value;save()});
+}
+function paintProp(){
+ document.getElementById("p_id").value=S.id;
+ for(const [el,k] of Object.entries(PMAP))document.getElementById(el).value=S[k]||"";
+ ["thk","bs","cb"].forEach(k=>document.getElementById("p_"+k).value=S.std[k]||"");
+ document.getElementById("r_obs").value=S.obs||"";
+ paintVerified();
+}
+/* BR-19 — an opening with its own measurements counts as verified */
+function measuredOpenings(){
+ const out=[];
+ S.openings.forEach((o,i)=>{ if(!o.std && (o.thk||o.bs||o.cb)) out.push(i+1); });
+ return out;
+}
+function paintVerified(){
+ const v=S.std.verified||[], m=measuredOpenings();
+ const bits=[];
+ if(v.length)bits.push("Verified as standard at "+v.join(", ")+".");
+ if(m.length)bits.push("Measured and differing at "+m.join(", ")+".");
+ document.getElementById("verifiedList").textContent =
+  bits.length?bits.join(" "):"Nothing verified yet. Measure two or three as you start.";
+}
+
+/* OPENINGS */
+function newOpening(){
+ const l=S.last;
+ S.openings.push({uid:uid(),loc:"",dtype:l.dtype,mat:l.mat,cond:l.cond,access:"Opened and inspected",
+  std:true,thk:"",bs:"",cb:"",devices:[],photos:[],notes:""});
+ editIdx=S.openings.length-1;save();paintEditor();show("edit");
+}
+function dupOpening(i,ev){
+ ev.stopPropagation();
+ const c=JSON.parse(JSON.stringify(S.openings[i]));
+ c.photos=[];c.notes="";c.loc="";
+ c.uid=uid(); c.devices.forEach(d=>d.uid=uid());   /* a copy is its own opening */
+ S.openings.push(c);editIdx=S.openings.length-1;save();paintEditor();show("edit");
+}
+function openIssues(o){
+ const out=[];
+ o.devices.forEach(d=>{ if(d.cond && COND_BAD.includes(d.cond)) out.push(d.cond); });
+ if(o.access && o.access!=="Opened and inspected") out.push(o.access);
+ return out;
+}
+function paintList(){
+ paintVerifyBanner();
+ const b=document.getElementById("openList");
+ if(!S.openings.length){b.innerHTML=`<div class="empty">No openings yet.<br>Walk the property and add them as you go.</div>`;return}
+ b.innerHTML=S.openings.map((o,i)=>{
+  const cyl=o.devices.filter(d=>isKeyed(d.func)).length;
+  const kws=[...new Set(o.devices.filter(d=>isKeyed(d.func)&&d.keyway).map(d=>short(d.keyway)))];
+  const iss=openIssues(o);
+  return `<div class="opening${iss.length?" issue":(o.std?"":" nonstd")}">
+   <div class="body" onclick="editOpening(${i})">
+    <div><span class="num">${i+1}</span><span class="name">${esc(o.loc)||"(unnamed)"}</span></div>
+    <div class="meta">${esc(o.dtype)||"—"} · ${o.devices.length} device${o.devices.length===1?"":"s"} · ${cyl} cylinder${cyl===1?"":"s"}${o.photos.length?" · "+o.photos.length+"📷":""}${o.std?"":" · measured"}</div>
+    <div>${kws.map(k=>`<span class="tag key">${esc(k)}</span>`).join("")}${iss.slice(0,3).map(t=>`<span class="tag bad">${esc(t)}</span>`).join("")}</div>
+   </div>
+   <button class="dup" onclick="dupOpening(${i},event)">Copy</button></div>`;
+ }).join("");
+}
+function editOpening(i){editIdx=i;paintEditor();show("edit")}
+
+function paintVerifyBanner(){
+ const n=S.openings.length,box=document.getElementById("verifyBanner");
+ const due=n>0&&n%L.verifyEvery===0&&!(S.std.verified||[]).includes(n)&&!measuredOpenings().includes(n);
+ box.innerHTML=due?`<div class="verify"><b>Tolerance check — opening ${n}</b>
+  Measure this one. If it matches the standard, confirm. If not, open it and mark it measured.
+  <button class="btn brass" style="margin-top:9px" onclick="confirmVerify(${n})">Measured — matches standard</button></div>`:"";
+}
+function confirmVerify(n){
+ S.std.verified=S.std.verified||[];
+ if(!S.std.verified.includes(n))S.std.verified.push(n);
+ save();paintVerifyBanner();
+}
+
+function paintEditor(){
+ const o=S.openings[editIdx];
+ document.getElementById("e_num").textContent=editIdx+1;
+ document.getElementById("e_loc").value=o.loc||"";
+ document.getElementById("e_dtype").innerHTML=opts(L.dtype,o.dtype);
+ document.getElementById("e_mat").innerHTML=opts(L.mat,o.mat);
+ document.getElementById("e_cond").innerHTML=opts(L.cond,o.cond);
+ document.getElementById("e_access").innerHTML=opts(L.access,o.access);
+ document.getElementById("e_access").onchange=function(){
+  o.access=this.value;paintAccessHint();save();
+ };
+ document.getElementById("e_notes").value=o.notes||"";
+ paintAccessHint();paintLocChips();paintPresets();paintDevices();paintStd();paintPhotos();
+}
+/* BR-18 */
+function paintAccessHint(){
+ const o=S.openings[editIdx];
+ document.getElementById("accessHint").innerHTML =
+  (o.access&&o.access!=="Opened and inspected")
+   ? `<p class="hint" style="color:#8a6100;font-weight:600">This prints on the customer's survey and needs a note below explaining what you could and couldn't see.</p>`
+   : "";
+}
+function paintLocChips(){
+ const o=S.openings[editIdx];
+ document.getElementById("locChips").innerHTML=L.locs.map((n,i)=>
+  `<button class="${o.loc===n?"on":""}" onclick="setLoc(${i})">${esc(n)}</button>`).join("");
+}
+function setLoc(i){const n=L.locs[i];S.openings[editIdx].loc=n;document.getElementById("e_loc").value=n;paintLocChips();save()}
+function paintPresets(){
+ document.getElementById("presetChips").innerHTML=L.presets.map((p,i)=>
+  `<button class="preset" onclick="applyPreset(${i})">${esc(p.name)}</button>`).join("");
+}
+function applyPreset(i){
+ const p=L.presets[i],o=S.openings[editIdx];
+ o.devices=p.devices.map(d=>({uid:uid(),type:d.type||"",func:d.func||"",mfr:d.mfr||"",
+  keyway:isKeyed(d.func)?(d.keyway||""):"",cond:d.cond||"",
+  borekind:"",boredia:"",borebs:"",borecb:"",strike:""}));
+ if(p.devices.some(d=>isBore(d.type)))o.std=false;   /* BR-20 */
+ paintDevices();paintStd();save();
+}
+function addDevice(){
+ S.openings[editIdx].devices.push({uid:uid(),type:"",func:"",mfr:"",keyway:"",cond:"",
+  borekind:"",boredia:"",borebs:"",borecb:"",strike:""});
+ paintDevices();save();
+}
+function paintDevices(){
+ const o=S.openings[editIdx];
+ document.getElementById("devList").innerHTML=o.devices.map((d,j)=>{
+  const keyed=isKeyed(d.func), bore=isBore(d.type), bad=d.cond&&COND_BAD.includes(d.cond);
+  return `<div class="dev${bad?" bad":""}">
+   <div class="hd"><b>Device ${j+1}</b><button class="x" onclick="delDevice(${j})">Remove</button></div>
+   <label>Type</label><select onchange="setDev(${j},'type',this.value)">${opts(L.devtype,d.type)}</select>
+   <label>Function</label><select onchange="setDev(${j},'func',this.value)">${funcOpts(d.func)}</select>
+   ${d.func&&!keyed&&d.func!=="Unknown"?`<p class="hint">No cylinder. Keyway is off and this cannot be counted as one.</p>`:""}
+   <label>Condition</label><select onchange="setDev(${j},'cond',this.value)">${condOpts(d.cond)}</select>
+   <label>Manufacturer</label><select onchange="setDev(${j},'mfr',this.value)">${opts(L.mfr,d.mfr)}</select>
+   <label>Keyway</label><select ${keyed?"":"disabled"} onchange="setDev(${j},'keyway',this.value)">${opts(L.keyway,d.keyway)}</select>
+   ${bore?`
+    <label>Bore kind</label><select onchange="setDev(${j},'borekind',this.value)">${opts(L.borekind,d.borekind)}</select>
+    <label>Bore diameter</label><select onchange="setDev(${j},'boredia',this.value)">${opts(L.boredia,d.boredia)}</select>
+    <label>Backset</label><select onchange="setDev(${j},'borebs',this.value)">${opts(L.bs,d.borebs)}</select>
+    <label>Cross bore</label><select onchange="setDev(${j},'borecb',this.value)">${opts(L.cb,d.borecb)}</select>
+    <label>Strike present</label><select onchange="setDev(${j},'strike',this.value)">${opts(["Yes","No","Damaged"],d.strike)}</select>`:""}
+  </div>`;
+ }).join("");
+}
+function setDev(j,k,v){
+ const d=S.openings[editIdx].devices[j];
+ d[k]=v;
+ if(k==="func"&&!isKeyed(v))d.keyway="";                       /* BR-2 */
+ if(k==="type"&&isBore(v)){                                     /* BR-20 */
+  d.func="Empty bore — prepped, no hardware"; d.keyway=""; d.mfr="N/A";
+  if(!d.cond)d.cond="Missing entirely";
+  S.openings[editIdx].std=false; paintStd();
+ }
+ paintDevices(); save();
+}
+function delDevice(j){S.openings[editIdx].devices.splice(j,1);paintDevices();save()}
+
+function paintStd(){
+ const o=S.openings[editIdx];
+ const b=document.getElementById("stdBtn");
+ b.textContent=o.std?"✓ Property standard":"Measured — differs from standard";
+ b.className=o.std?"on":"preset";
+ document.getElementById("stdFields").innerHTML=o.std
+  ?`<p class="hint">${esc(S.std.thk)||"—"} · ${esc(S.std.bs)||"—"} · ${esc(S.std.cb)||"—"}</p>`
+  :`<label>Thickness</label><select onchange="setStdF('thk',this.value)">${opts(L.thk,o.thk)}</select>
+    <label>Backset</label><select onchange="setStdF('bs',this.value)">${opts(L.bs,o.bs)}</select>
+    <label>Cross bore</label><select onchange="setStdF('cb',this.value)">${opts(L.cb,o.cb)}</select>
+    <p class="hint">Entering these counts as verifying this opening.</p>`;
+}
+function toggleStd(){S.openings[editIdx].std=!S.openings[editIdx].std;paintStd();save()}
+function setStdF(k,v){S.openings[editIdx][k]=v;save()}
+
+function addPhotos(inp){
+ const target=S.openings[editIdx];          /* bind to THIS opening, not to whatever is on screen later */
+ [...inp.files].forEach(f=>{
+  const r=new FileReader();
+  r.onload=e=>{const img=new Image();img.onload=()=>{
+   const m=1200,s=Math.min(1,m/Math.max(img.width,img.height));
+   const c=document.createElement("canvas");
+   c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+   c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+   target.photos.push(c.toDataURL("image/jpeg",0.7));
+   if(S.openings[editIdx]===target)paintPhotos();
+   save();};img.src=e.target.result};
+  r.readAsDataURL(f);});
+ inp.value="";
+}
+function paintPhotos(){
+ document.getElementById("photoList").innerHTML=S.openings[editIdx].photos.map((p,i)=>
+  `<div class="ph"><img src="${p}"><button onclick="delPhoto(${i})">×</button></div>`).join("");
+}
+function delPhoto(i){S.openings[editIdx].photos.splice(i,1);paintPhotos();save()}
+
+function saveOpening(then){
+ const o=S.openings[editIdx];
+ o.loc=document.getElementById("e_loc").value;
+ o.dtype=document.getElementById("e_dtype").value;
+ o.mat=document.getElementById("e_mat").value;
+ o.cond=document.getElementById("e_cond").value;
+ o.access=document.getElementById("e_access").value;
+ o.notes=document.getElementById("e_notes").value;
+ S.last={dtype:o.dtype,mat:o.mat,cond:o.cond};
+ save(); then==="next"?newOpening():show("open");
+}
+function deleteOpening(){
+ if(!confirm("Delete opening "+(editIdx+1)+"?"))return;
+ const gone=editIdx+1;
+ S.openings.splice(editIdx,1);
+ S.std.verified=(S.std.verified||[]).filter(n=>n!==gone).map(n=>n>gone?n-1:n);
+ saveNow();show("open");
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW — flags now jump (change 2)
+   ═══════════════════════════════════════════════════════════════ */
+function analyse(){
+ const r={cyl:0,ph:0,noKw:[],unk:[],noLoc:[],noDev:[],cond:[],access:[],accessNoNote:[],keyways:{}};
+ S.openings.forEach((o,i)=>{
+  const n=i+1; r.ph+=o.photos.length;
+  if(!o.loc)r.noLoc.push(n);
+  if(!o.devices.length)r.noDev.push(n);
+  if(o.access&&o.access!=="Opened and inspected"){
+   r.access.push(n); if(!o.notes||!o.notes.trim())r.accessNoNote.push(n);
+  }
+  o.devices.forEach(d=>{
+   if(d.func==="Unknown")r.unk.push(n);
+   if(d.cond&&COND_BAD.includes(d.cond))r.cond.push(n);
+   if(isKeyed(d.func)){
+    r.cyl++;
+    if(!d.keyway||d.keyway==="Unknown")r.noKw.push(n);
+    else{const k=short(d.keyway);r.keyways[k]=(r.keyways[k]||0)+1}
+   }
+  });
+ });
+ ["noKw","unk","noLoc","noDev","cond","access","accessNoNote"].forEach(k=>r[k]=[...new Set(r[k])]);
+ return r;
+}
+function jumps(list){return list.map(n=>`<button class="jump" onclick="editOpening(${n-1})">#${n}</button>`).join("")}
+
+function paintReview(){
+ const a=analyse(); let h="";
+ if(a.accessNoNote.length)h+=`<div class="alert bad"><b>Opening not opened, no note written</b>
+  BR-18 — say what you could and couldn't see.${jumps(a.accessNoNote)}</div>`;
+ if(a.cond.length)h+=`<div class="alert bad"><b>${a.cond.length} opening${a.cond.length===1?"":"s"} with hardware needing attention</b>
+  These are your findings. Every one should reach the quote.${jumps(a.cond)}</div>`;
+ if(a.noKw.length)h+=`<div class="alert warn"><b>Cylinder with no keyway recorded</b>
+  You can't plan keying or order blanks without it.${jumps(a.noKw)}</div>`;
+ if(a.unk.length)h+=`<div class="alert warn"><b>Device function unknown</b>
+  Excluded from the cylinder count until set.${jumps(a.unk)}</div>`;
+ if(a.access.length&&!a.accessNoNote.length)h+=`<div class="alert warn"><b>Openings not fully inspected</b>
+  Printed on the survey.${jumps(a.access)}</div>`;
+ if(a.noLoc.length)h+=`<div class="alert warn"><b>No location name</b>${jumps(a.noLoc)}</div>`;
+ if(a.noDev.length)h+=`<div class="alert warn"><b>No devices recorded</b>
+  Fine for an empty doorway.${jumps(a.noDev)}</div>`;
+ if(!S.std.thk||!S.std.bs)h+=`<div class="alert warn"><b>Measurement standard not set</b>Set it on the Property screen.</div>`;
+ else if(!(S.std.verified||[]).length&&!measuredOpenings().length&&S.openings.length)
+  h+=`<div class="alert warn"><b>Nothing verified</b>Measure two or three so the PDF can say which were checked.</div>`;
+
+ const kw=Object.keys(a.keyways);
+ if(kw.length>1)h+=`<div class="alert warn"><b>Mixed keyways on this property</b>
+  ${kw.map(k=>k+" × "+a.keyways[k]).join(" · ")}. These cannot be keyed alike without changing hardware
+  or cylinders so a group shares one keyway. Settle it with the customer before quoting.</div>`;
+
+ if(!h&&S.openings.length)h=`<div class="alert ok"><b>Survey complete</b>Nothing outstanding.</div>`;
+ document.getElementById("flags").innerHTML=h;
+
+ document.getElementById("counts").innerHTML=`
+  <div class="count"><span>Openings</span><b>${S.openings.length}</b></div>
+  <div class="count big"><span>Keyed cylinders</span><b>${a.cyl}</b></div>
+  <div class="count"><span>Hardware needing attention</span><b>${a.cond.length}</b></div>
+  <div class="count"><span>Measured openings</span><b>${measuredOpenings().length}</b></div>
+  <div class="count"><span>Verified as standard</span><b>${(S.std.verified||[]).length}</b></div>
+  <div class="count"><span>Photos</span><b>${a.ph}</b></div>`;
+ paintFlag();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SURVEY PDF
+   ═══════════════════════════════════════════════════════════════ */
+function makePDF(){
+ const a=analyse(), v=S.std.verified||[], m=measuredOpenings();
+ let h=`<h2>Door Survey</h2>
+ <div style="font-size:9pt;color:#555;margin-bottom:9px">Garrison Lock &amp; Key · ${esc(S.id)} · ${esc(S.date)}</div>
+ <table>
+  <tr><th>Customer</th><td>${esc(S.cust)}</td><th>Phone</th><td>${esc(S.phone)}</td></tr>
+  <tr><th>Property</th><td colspan="3">${esc(S.addr)}, ${esc(S.city)} ${esc(S.zip)}</td></tr>
+  <tr><th>Surveyed by</th><td>${esc(S.by)}</td><th>Openings</th><td>${S.openings.length}</td></tr>
+  ${S.reason?`<tr><th>Reason</th><td colspan="3">${esc(S.reason)}</td></tr>`:""}</table>`;
+
+ h+=`<h3>Openings</h3><table>
+ <tr><th>#</th><th>Location</th><th>Door</th><th>Material</th><th>Device</th>
+ <th>Function</th><th>Make</th><th>Keyway</th><th>Hardware condition</th><th>Door</th></tr>`;
+ S.openings.forEach((o,i)=>{
+  const star=o.std?"":" *";
+  if(!o.devices.length){
+   h+=`<tr><td>${i+1}</td><td>${esc(o.loc)}${star}</td><td>${esc(o.dtype)}</td><td>${esc(o.mat)}</td>
+   <td colspan="5">No hardware</td><td>${esc(o.cond)}</td></tr>`;
+  }
+  o.devices.forEach((d,j)=>{
+   h+=`<tr>${j?`<td></td><td></td><td></td><td></td>`:
+    `<td>${i+1}</td><td>${esc(o.loc)}${star}</td><td>${esc(o.dtype)}</td><td>${esc(o.mat)}</td>`}
+    <td>${esc(d.type)}</td><td>${esc(d.func)}</td><td>${esc(d.mfr)}</td>
+    <td>${isKeyed(d.func)?esc(short(d.keyway)):"—"}</td>
+    <td>${esc(d.cond)}</td>${j?"<td></td>":`<td>${esc(o.cond)}</td>`}</tr>`;
+   if(isBore(d.type))h+=`<tr><td></td><td colspan="9"><i>Bore: ${esc(d.borekind)} · ${esc(d.boredia)} · backset ${esc(d.borebs)} · cross bore ${esc(d.borecb)} · strike ${esc(d.strike)}</i></td></tr>`;
+  });
+  if(o.access&&o.access!=="Opened and inspected")
+   h+=`<tr><td></td><td colspan="9"><b>${esc(o.access)}</b></td></tr>`;
+  if(o.notes)h+=`<tr><td></td><td colspan="9"><i>${esc(o.notes)}</i></td></tr>`;
+ });
+ h+=`</table>`;
+
+ /* BR-19 */
+ const bits=[];
+ if(v.length)bits.push("Verified as matching the standard at opening "+v.join(", ")+".");
+ if(m.length)bits.push("Measured individually and differing at opening "+m.join(", ")+" (marked *).");
+ if(!v.length&&!m.length)bits.push("No openings individually measured.");
+ h+=`<h3>Measurements</h3><p class="note">Property standard: ${esc(S.std.thk)||"not set"} thickness,
+ ${esc(S.std.bs)||"not set"} backset, ${esc(S.std.cb)||"not set"} cross bore. ${bits.join(" ")}
+ Remaining openings recorded as standard.</p>`;
+
+ if(a.access.length)h+=`<p class="note">Openings ${a.access.join(", ")} could not be fully inspected. See the notes against each.</p>`;
+
+ h+=`<h3>Summary</h3><table>
+  <tr><th>Openings surveyed</th><td>${S.openings.length}</td><th>Keyed cylinders</th><td>${a.cyl}</td></tr>
+  <tr><th>Hardware needing attention</th><td>${a.cond.length}</td><th>Photographs</th><td>${a.ph}</td></tr></table>`;
+
+ if(S.obs&&S.obs.trim())h+=`<h3>Surveyor's observations</h3><div class="obs">${esc(S.obs)}</div>`;
+
+ { const wsc=workScenario();
+   if(wsc && workItems(wsc).some(l=>workLine(l).done||workLine(l).note))
+    h+=`<h3>Service record — ${esc(S.work.date)}</h3>`+recordTable(wsc); }
+
+ h+=`<p class="note">This survey records the condition of the property as found on ${esc(S.date)}.
+ It is provided at no charge and carries no obligation.</p>`;
+
+ const ps=S.openings.flatMap((o,i)=>o.photos.map(p=>({p,n:i+1,l:o.loc})));
+ if(ps.length){h+=`<h3>Photographs</h3>`;
+  ps.forEach(x=>h+=`<div class="ph"><img src="${x.p}"><div class="cap">#${x.n} ${esc(x.l)}</div></div>`);}
+ document.getElementById("po").innerHTML=h;
+ setTimeout(()=>window.print(),150);
+}
+
+/* EXPORT / IMPORT */
+function exportData(){
+ S.exportedAt=new Date().toLocaleString();
+ const b=new Blob([JSON.stringify(S)],{type:"application/json"});
+ const u=URL.createObjectURL(b),a=document.createElement("a");
+ a.href=u;a.download=(S.id||"survey")+"_"+(S.addr||"").replace(/[^a-z0-9]+/gi,"-").slice(0,30)+".json";
+ a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);
+ dirty=false;saveNow(false);paintFlag();
+}
+function importData(inp){
+ const f=inp.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=e=>{try{
+  const d=JSON.parse(e.target.result);
+  if(!d.openings)throw new Error("not a survey file");
+  if(!confirm("Load "+(d.id||"survey")+" — "+(d.addr||"no address")+"? This replaces what's on screen."))return;
+  S=normalize(d);dirty=false;paintProp();save(false);show("open");
+ }catch(err){alert("Couldn't read that file: "+err.message)}};
+ r.readAsText(f);inp.value="";
+}
+function resetAll(){
+ if(!confirm("Clear this survey and start a new one? Export first."))return;
+ S=blank();dirty=false;paintProp();save(false);show("prop");
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE 2 — QUOTING           Amendment 0.4
+   ═══════════════════════════════════════════════════════════════ */
+
+/* BR-22 — price book is global. ONE copy on this device, stored apart from any survey.
+   Every service has a fixed id. The quote math looks services up by id, never by name,
+   so a service can be renamed freely. */
+const PB_DEFAULT = {
+ tax:0.095, minimum:145, markup:0.35,
+ rates:[
+  {id:"svc",    name:"Service call / trip charge", price:65},
+  {id:"rk1",    name:"Rekey — first cylinder", price:25},
+  {id:"rkn",    name:"Rekey — each additional, same visit", price:15},
+  {id:"keycut", name:"Key cut — each", price:6},
+  {id:"dbx",    name:"Deadbolt install — existing bore", price:55},
+  {id:"dbd",    name:"Deadbolt install — new bore, drill required", price:125},
+  {id:"lever",  name:"Knob / lever install", price:45},
+  {id:"smart",  name:"Smart lock install & setup", price:145},
+  {id:"strike", name:"Strike plate reinforcement, 3\" screws", price:25},
+  {id:"box",    name:"Box strike / reinforcement kit", price:65},
+  {id:"hinge",  name:"Hinge screw upgrade — per door", price:35},
+  {id:"slide",  name:"Sliding door secondary lock", price:55},
+  {id:"extract",name:"Broken key extraction", price:45},
+  {id:"repair", name:"Lock repair / adjustment", price:55},
+  {id:"lockout",name:"Residential lockout", price:85},
+  {id:"ka",     name:"Keyed-alike system setup", price:30},
+  {id:"after",  name:"After-hours / weekend surcharge", price:75}
+ ]
+};
+/* Services the quote adds on its own from the actions you pick. These can be renamed
+   and repriced, but not deleted — the quote needs them. */
+const AUTO_IDS=["svc","rk1","rkn","keycut","dbx","dbd","lever","smart","repair","ka"];
+let PB=null;   /* the one live price book */
+
+/* Bring any older price book up to the current shape.
+   v3 and earlier stored rates as {name: price}; match those by name. */
+function upgradePB(old){
+ const d=JSON.parse(JSON.stringify(PB_DEFAULT));
+ if(!old) return d;
+ const pb={tax:old.tax!=null?old.tax:d.tax, minimum:old.minimum!=null?old.minimum:d.minimum,
+           markup:old.markup!=null?old.markup:d.markup, rates:[]};
+ if(Array.isArray(old.rates)){
+  old.rates.forEach(r=>{ if(r&&r.name) pb.rates.push({id:r.id||("c"+uid()),name:String(r.name),price:parseFloat(r.price)||0}); });
+ } else if(old.rates && typeof old.rates==="object"){
+  const byName=old.rates, used={};
+  d.rates.forEach(r=>{ if(r.name in byName){ r.price=parseFloat(byName[r.name])||0; used[r.name]=1; } pb.rates.push(r); });
+  Object.keys(byName).forEach(n=>{ if(!used[n]) pb.rates.push({id:"c"+uid(),name:n,price:parseFloat(byName[n])||0}); });
+  return pb;
+ }
+ /* the quote cannot run without its automatic services — restore any that are missing */
+ AUTO_IDS.forEach(id=>{ if(!pb.rates.some(r=>r.id===id)) pb.rates.push(d.rates.find(r=>r.id===id)); });
+ return pb;
+}
+const rate=id=>PB.rates.find(r=>r.id===id);
+
+/* ═══ WORK — the return visit ═══════════════════════════════════
+   One work record per survey: which option was accepted, and per device
+   whether it was done and what you noted. Quick notes are global, like the
+   price book: type a phrase once, tap it on every job after. */
+const QN_DEFAULT=["Rekeyed","Lubricated","Keys tested — operate smoothly",
+ "Worn cylinder — play in the plug; key must be worked to operate","Replacement recommended",
+ "Strike adjusted","Latch and strike aligned","Screws tightened","New keys cut and tested","Hardware installed and tested"];
+let QN=null;
+function saveQN(){ putKey(QN,"qn"); }
+const wkey=l=>l.ou+"|"+l.du;
+function workLine(l){
+ if(!S.work) return {done:false,note:""};
+ return S.work.lines[wkey(l)]||(S.work.lines[wkey(l)]={done:false,note:""});
+}
+function workScenario(){ return S.work ? S.scenarios.find(x=>x.id===S.work.sid)||null : null; }
+function workItems(sc){           /* the lines that were quoted as real work */
+ return (sc.lines||[]).filter(l=>l.inc&&l.action&&l.action!=="No work"&&findDev(l.ou,l.du));
+}
+const isAuto=id=>AUTO_IDS.includes(id);
+function savePB(){ putKey(PB,"pb"); if(S){ S.pb=PB; save(); } }
+
+const ACTIONS=["No work","Rekey","Repair / adjust","Replace — same function","Replace — upgrade",
+ "New — existing bore","New — drill required","Install smart lock","Diagnose, then replace","Flag for decision"];
+
+/* Amendment 0.4 §3 — defaults proposed from recorded condition */
+const ACTION_DEFAULT={
+ "Operates correctly":"Rekey",
+ "Finish worn — cosmetic only":"No work",
+ "Stiff or binding":"Repair / adjust",
+ "Painted over":"Replace — same function",
+ "Latch or bolt will not operate":"Repair / adjust",
+ "Strike misaligned":"Repair / adjust",
+ "Loose — fasteners stripped":"Repair / adjust",
+ "Cylinder spins freely":"Diagnose, then replace",
+ "Damaged":"Replace — same function",
+ "Destroyed or missing parts":"Replace — same function",
+ "Missing entirely":"New — existing bore",
+ "No key available — not tested":"Flag for decision",
+ "Not tested":"Flag for decision"
+};
+const TIERS=["Standard","Upgrade","Best"];
+const GRADES=["ANSI Grade 1","ANSI Grade 2","ANSI Grade 3","Not rated","Unknown"];
+const KGROUPS=["A","B","C","D","None"];
+const EXTERIOR=["Front entry","Side entry","Back / patio","French pair","Garage man-door","Exterior other"];
+
+let scIdx=-1;
+
+function uid(){return Math.random().toString(36).slice(2,10)}
+function ensureIds(){
+ (S.openings||[]).forEach(o=>{ if(!o.uid)o.uid=uid();
+  o.devices.forEach(d=>{ if(!d.uid)d.uid=uid(); }); });
+}
+function ensureQuote(){
+ S.pb=PB;
+ if(!S.scenarios) S.scenarios=[];
+ ensureIds();
+}
+function findDev(ou,du){
+ for(let i=0;i<S.openings.length;i++){
+  const o=S.openings[i];
+  if(o.uid!==ou)continue;
+  for(let j=0;j<o.devices.length;j++) if(o.devices[j].uid===du) return {o,d:o.devices[j],i,j};
+ }
+ return null;
+}
+/* BR-4 — scenario lines follow the survey. Rebuilt from it, never a copy. */
+function syncLines(sc){
+ const have={}; (sc.lines||[]).forEach(l=>have[l.ou+"|"+l.du]=l);
+ const out=[];
+ S.openings.forEach(o=>o.devices.forEach(d=>{
+  const k=o.uid+"|"+d.uid;
+  out.push(have[k]||{ou:o.uid,du:d.uid,inc:false,action:"",kg:"",newKeyway:""});
+ }));
+ sc.lines=out;
+ return sc;
+}
+
+function newScenario(){
+ ensureQuote();
+ S.scenarios.push(syncLines({id:uid(),name:"",desc:"",lines:[],hw:[],keys:{},status:"draft"}));
+ scIdx=S.scenarios.length-1; save(); paintScenario(); show('scen');
+}
+function delScenario(){
+ if(!confirm("Delete this option?"))return;
+ S.scenarios.splice(scIdx,1); save(); show('quote');
+}
+function editScenario(i){scIdx=i;paintScenario();show('scen')}
+
+function paintScnList(){
+ ensureQuote();
+ const b=document.getElementById("scnList");
+ if(!S.scenarios.length){
+  b.innerHTML='<div class="empty">No quote options yet.<br>Build two or three so the customer chooses between them rather than accepting or declining one.</div>';
+  return;
+ }
+ b.innerHTML=S.scenarios.map((sc,i)=>{
+  syncLines(sc);
+  const t=totals(sc), n=sc.lines.filter(l=>l.inc).length;
+  return '<div class="scn" onclick="editScenario('+i+')"><div class="body">'+
+   '<div class="nm">'+(esc(sc.name)||"(unnamed option)")+'</div>'+
+   '<div class="meta">'+n+' device'+(n===1?'':'s')+' · '+t.labourItems+' labour line'+(t.labourItems===1?'':'s')+' · '+sc.hw.length+' hardware line'+(sc.hw.length===1?'':'s')+'</div>'+
+   '</div><div class="tot">$'+t.total.toFixed(0)+'</div></div>';
+ }).join("");
+}
+
+/* ── totals ─────────────────────────────────────────────── */
+function installRate(d){
+ return d.type==="Deadbolt" ? "dbx" : "lever";
+}
+function totals(sc,doneOnly){
+ const lab={}, add=(k,n)=>{ lab[k]=(lab[k]||0)+n; };
+ let rekey=0, groups={};
+ (sc.lines||[]).forEach(l=>{
+  if(!l.inc)return;
+  if(doneOnly && !workLine(l).done)return;      /* billing: only what was actually done */
+  const f=findDev(l.ou,l.du); if(!f)return;
+  const d=f.d, a=l.action;
+  if(a==="Rekey"){ if(isKeyed(d.func)) rekey++; }   /* no cylinder, nothing to rekey */
+  else if(a==="Repair / adjust") add("repair",1);
+  else if(a==="Diagnose, then replace"){add("repair",1);add(installRate(d),1);}
+  else if(a==="Replace — same function"||a==="Replace — upgrade"||a==="New — existing bore") add(installRate(d),1);
+  else if(a==="New — drill required") add("dbd",1);
+  else if(a==="Install smart lock") add("smart",1);
+  if(l.kg&&l.kg!=="None") groups[l.kg]=(groups[l.kg]||0)+1;
+ });
+ const lines=[];
+ /* an automatic service priced at $0 is left off the quote */
+ const push=(id,q)=>{ const r=rate(id); if(r&&q>0&&r.price) lines.push({n:r.name,q,r:r.price}); };
+ push("svc",1);
+ if(rekey>0){ push("rk1",1); push("rkn",rekey-1); }
+ PB.rates.forEach(r=>{ if(lab[r.id]) push(r.id,lab[r.id]); });
+ const gk=Object.keys(groups).sort();
+ push("ka",gk.length);
+ let keys=0; gk.forEach(g=>keys+=parseInt(sc.keys[g]||0,10)||0);
+ push("keycut",keys);
+ /* services you add to this option by hand */
+ let missing=0;
+ (sc.extra||[]).forEach(x=>{
+  const r=rate(x.id), q=parseFloat(x.q)||0;
+  if(!r){ missing++; return; }
+  if(q>0) lines.push({n:r.name,q,r:r.price||0});
+ });
+
+ const labour=lines.reduce((s,l)=>s+l.q*l.r,0);
+ const parts=(sc.hw||[]).reduce((s,x)=>{
+  const c=parseFloat(x.cost)||0, q=parseInt(x.qty,10)||0;
+  const m=x.markup===""||x.markup==null?S.pb.markup:(parseFloat(x.markup)/100);
+  return s+c*q*(1+m);
+ },0);
+ const sub=labour+parts, tax=sub*S.pb.tax, total=sub+tax;
+ return {lines,labour,parts,sub,tax,total,groups:gk,keys,rekey,
+  labourItems:lines.length,below:total<S.pb.minimum,missing};
+}
+
+/* ── scenario editor ────────────────────────────────────── */
+function paintScenario(){
+ ensureQuote();
+ const sc=syncLines(S.scenarios[scIdx]);
+ document.getElementById("sc_name").value=sc.name||"";
+ document.getElementById("sc_desc").value=sc.desc||"";
+ document.getElementById("sc_name").oninput=function(){sc.name=this.value;save()};
+ document.getElementById("sc_desc").oninput=function(){sc.desc=this.value;save()};
+ sc.extra=sc.extra||[];
+ paintLines(); paintKeys(); paintHw(); paintExtra(); paintTotals();
+}
+function paintExtra(){
+ const sc=S.scenarios[scIdx];
+ const extraOpts=v=>{
+  const man=PB.rates.filter(r=>!isAuto(r.id)), auto=PB.rates.filter(r=>isAuto(r.id));
+  const o=r=>'<option value="'+esc(r.id)+'"'+(r.id===v?' selected':'')+'>'+esc(r.name)+' — $'+r.price+'</option>';
+  return '<option value="">—</option><optgroup label="Extra services">'+man.map(o).join("")+'</optgroup>'+
+         '<optgroup label="Also added automatically">'+auto.map(o).join("")+'</optgroup>';
+ };
+ document.getElementById("exList").innerHTML=sc.extra.map((x,i)=>{
+  const gone=x.id&&!rate(x.id);
+  return '<div class="hwl"><div class="top" style="display:flex;justify-content:space-between">'+
+   '<b style="font-size:14px">Service '+(i+1)+'</b>'+
+   '<button class="x" onclick="delExtra('+i+')">Remove</button></div>'+
+   (gone?'<p class="hint" style="color:#b00020;font-weight:600">This service was deleted from the price book. Pick another or remove it.</p>':'')+
+   '<select onchange="setExtra('+i+',\'id\',this.value)">'+extraOpts(x.id)+'</select>'+
+   '<label>Qty</label><input type="number" inputmode="decimal" min="0" value="'+esc(x.q)+'" onchange="setExtra('+i+',\'q\',this.value)">'+
+   '</div>';
+ }).join("");
+}
+function addExtra(){S.scenarios[scIdx].extra.push({id:"",q:"1"});save();paintExtra();paintTotals()}
+function setExtra(i,k,v){S.scenarios[scIdx].extra[i][k]=v;save();paintExtra();paintTotals()}
+function delExtra(i){S.scenarios[scIdx].extra.splice(i,1);save();paintExtra();paintTotals()}
+function paintLines(){
+ const sc=S.scenarios[scIdx], box=document.getElementById("lineList");
+ let html="", lastO=null;
+ sc.lines.forEach((l,li)=>{
+  const f=findDev(l.ou,l.du); if(!f)return;
+  const {o,d,i}=f;
+  if(lastO!==o.uid){
+   lastO=o.uid;
+   html+='<div class="card" style="padding:10px 12px"><div class="grp">'+(i+1)+' · '+(esc(o.loc)||"unnamed")+' — '+esc(o.dtype)+'</div>';
+  }
+  const bad=d.cond&&COND_BAD.includes(d.cond);
+  const repl=/^Replace|^New|smart lock/.test(l.action||"");
+  html+='<div class="ln'+(l.inc?'':' off')+'">'+
+   '<div class="top"><input class="ck" type="checkbox" '+(l.inc?'checked':'')+' onchange="setLine('+li+',\'inc\',this.checked)">'+
+   '<b>'+esc(d.type)+' — '+esc(d.func)+'</b></div>'+
+   '<div class="sub">'+(esc(d.cond)||'condition not recorded')+(isKeyed(d.func)&&d.keyway?' · '+esc(short(d.keyway)):'')+(bad?' ⚠':'')+'</div>'+
+   (l.inc?
+    '<select onchange="setLine('+li+',\'action\',this.value)">'+opts(isKeyed(d.func)?ACTIONS:ACTIONS.filter(a=>a!=="Rekey"),l.action)+'</select>'+
+    (isKeyed(d.func)?
+      '<label>Keyed alike group</label><select onchange="setLine('+li+',\'kg\',this.value)">'+opts(KGROUPS,l.kg)+'</select>':'')+
+    (repl&&isKeyed(d.func)?
+      '<label>Keyway after this work</label><select onchange="setLine('+li+',\'newKeyway\',this.value)">'+opts(L.keyway,l.newKeyway)+'</select>':'')
+    :'')+
+   '</div>';
+  const next=sc.lines[li+1], nf=next?findDev(next.ou,next.du):null;
+  if(!nf||nf.o.uid!==o.uid) html+='</div>';
+ });
+ box.innerHTML=html||'<div class="empty">No devices in the survey yet.</div>';
+}
+function setLine(li,k,v){
+ const sc=S.scenarios[scIdx], l=sc.lines[li];
+ l[k]=v;
+ if(k==="inc"&&v&&!l.action){                       /* BR-23 — propose, don't impose */
+  const f=findDev(l.ou,l.du);
+  if(f){ const dflt=ACTION_DEFAULT[f.d.cond]||"";
+   l.action = (dflt==="Rekey"&&!isKeyed(f.d.func)) ? "No work" : dflt; }
+ }
+ save(); paintLines(); paintKeys(); paintTotals();
+}
+function proposeAll(){
+ const sc=S.scenarios[scIdx];
+ sc.lines.forEach(l=>{
+  if(!l.inc)return;
+  const f=findDev(l.ou,l.du); if(!f)return;
+  const dflt=ACTION_DEFAULT[f.d.cond]||"";
+  l.action=(dflt==="Rekey"&&!isKeyed(f.d.func))?"No work":dflt;
+ });
+ save(); paintLines(); paintTotals();
+}
+function bulk(mode){
+ const sc=S.scenarios[scIdx];
+ sc.lines.forEach(l=>{
+  const f=findDev(l.ou,l.du); if(!f)return;
+  const {o,d}=f;
+  let on=false;
+  if(mode==="all")on=true;
+  else if(mode==="none")on=false;
+  else if(mode==="ext")on=EXTERIOR.includes(o.dtype);
+  else if(mode==="keyed")on=isKeyed(d.func);
+  else if(mode==="flagged")on=!!(d.cond&&COND_BAD.includes(d.cond));
+  l.inc=on;
+  if(on&&!l.action){ const df=ACTION_DEFAULT[d.cond]||"";
+   l.action=(df==="Rekey"&&!isKeyed(d.func))?"No work":df; }
+ });
+ save(); paintLines(); paintKeys(); paintTotals();
+}
+function paintKeys(){
+ const sc=S.scenarios[scIdx], t=totals(sc), box=document.getElementById("keyList");
+ if(!t.groups.length){box.innerHTML='<p class="hint">No keyed-alike groups assigned yet.</p>';return}
+ box.innerHTML=t.groups.map(g=>{
+  const n=sc.lines.filter(l=>l.inc&&l.kg===g).length;
+  return '<label>Group '+esc(g)+' — '+n+' cylinder'+(n===1?'':'s')+'</label>'+
+   '<input type="number" inputmode="numeric" min="0" value="'+(sc.keys[g]||'')+
+   '" placeholder="keys to cut" onchange="sc_setKeys(\''+g+'\',this.value)">';
+ }).join("");
+}
+function sc_setKeys(g,v){S.scenarios[scIdx].keys[g]=v;save();paintTotals()}
+
+function paintHw(){
+ const sc=S.scenarios[scIdx];
+ document.getElementById("hwList").innerHTML=(sc.hw||[]).map((x,i)=>
+  '<div class="hwl"><div class="top" style="display:flex;justify-content:space-between">'+
+  '<b style="font-size:14px">Hardware '+(i+1)+'</b>'+
+  '<button class="x" onclick="delHw('+i+')">Remove</button></div>'+
+  '<label>Product</label><input value="'+esc(x.name)+'" onchange="setHw('+i+',\'name\',this.value)">'+
+  '<div class="row"><div><label>Brand</label><input value="'+esc(x.brand)+'" onchange="setHw('+i+',\'brand\',this.value)"></div>'+
+  '<div><label>Finish</label><input value="'+esc(x.finish)+'" onchange="setHw('+i+',\'finish\',this.value)"></div></div>'+
+  '<label>Grade</label><select onchange="setHw('+i+',\'grade\',this.value)">'+opts(GRADES,x.grade)+'</select>'+
+  '<label>Tier</label><select onchange="setHw('+i+',\'tier\',this.value)">'+opts(TIERS,x.tier)+'</select>'+
+  '<div class="row"><div><label>Qty</label><input type="number" inputmode="numeric" value="'+esc(x.qty)+'" onchange="setHw('+i+',\'qty\',this.value)"></div>'+
+  '<div><label>Your cost ea</label><input type="number" inputmode="decimal" value="'+esc(x.cost)+'" onchange="setHw('+i+',\'cost\',this.value)"></div>'+
+  '<div><label>Markup %</label><input type="number" inputmode="numeric" placeholder="'+(S.pb.markup*100)+'" value="'+esc(x.markup)+'" onchange="setHw('+i+',\'markup\',this.value)"></div></div>'+
+  '<label>Goes on</label><input value="'+esc(x.where)+'" placeholder="openings 3, 4, 6" onchange="setHw('+i+',\'where\',this.value)">'+
+  '</div>').join("");
+}
+function addHw(){
+ S.scenarios[scIdx].hw.push({name:"",brand:"",finish:"",grade:"",tier:"",qty:"1",cost:"",markup:"",where:""});
+ save();paintHw();paintTotals();
+}
+function setHw(i,k,v){S.scenarios[scIdx].hw[i][k]=v;save();paintTotals()}
+function delHw(i){S.scenarios[scIdx].hw.splice(i,1);save();paintHw();paintTotals()}
+
+function paintTotals(){
+ const sc=S.scenarios[scIdx], t=totals(sc);
+ let h=t.lines.map(l=>'<div class="trow"><span>'+esc(l.n)+' × '+l.q+'</span><b>$'+(l.q*l.r).toFixed(2)+'</b></div>').join("");
+ h+='<div class="trow"><span>Labour</span><b>$'+t.labour.toFixed(2)+'</b></div>';
+ h+='<div class="trow"><span>Parts</span><b>$'+t.parts.toFixed(2)+'</b></div>';
+ h+='<div class="trow"><span>Tax ('+(S.pb.tax*100).toFixed(1)+'%)</span><b>$'+t.tax.toFixed(2)+'</b></div>';
+ h+='<div class="trow sum"><span>Total</span><b>$'+t.total.toFixed(2)+'</b></div>';
+ /* A30 */
+ if(t.below)h='<div class="alert warn"><b>Below the $'+S.pb.minimum+' minimum</b>This quote totals $'+t.total.toFixed(2)+'. Raise it or override the minimum deliberately.</div>'+h;
+ /* A27 — keyway conflict, per scenario */
+ const gm={};
+ sc.lines.forEach(l=>{
+  if(!l.inc||!l.kg||l.kg==="None")return;
+  const f=findDev(l.ou,l.du); if(!f||!isKeyed(f.d.func))return;
+  const kw=short(l.newKeyway||f.d.keyway||"");
+  if(!kw)return;
+  gm[l.kg]=gm[l.kg]||{}; gm[l.kg][kw]=(gm[l.kg][kw]||0)+1;
+ });
+ let warn="";
+ Object.keys(gm).sort().forEach(g=>{
+  const ks=Object.keys(gm[g]);
+  if(ks.length>1) warn+='<div class="alert bad"><b>Keyway conflict — group '+esc(g)+'</b>'+
+   ks.map(k=>k+' × '+gm[g][k]).join(' · ')+
+   '. These cannot share a key as quoted. Set the keyway-after-work on the replacement lines so the whole group lands on one keyway.</div>';
+ });
+ if(t.missing) warn+='<div class="alert warn"><b>Deleted service</b>'+t.missing+' line'+(t.missing===1?' uses a service':'s use services')+' no longer in the price book, and '+(t.missing===1?'is':'are')+' not in this total. See Other services.</div>';
+ document.getElementById("scTotals").innerHTML=warn+h;
+}
+
+/* ── work screen ─────────────────────────────────────────── */
+function paintWork(){
+ ensureQuote();
+ const sel=document.getElementById("w_sid");
+ sel.innerHTML='<option value="">— choose —</option>'+S.scenarios.map(sc=>
+  '<option value="'+esc(sc.id)+'"'+(S.work&&S.work.sid===sc.id?' selected':'')+'>'+(esc(sc.name)||"(unnamed option)")+'</option>').join("");
+ const sc=workScenario(), head=document.getElementById("w_head"), body=document.getElementById("w_body");
+ if(!sc){
+  head.innerHTML='<p class="hint">'+(S.scenarios.length?'Pick the quote option you are doing. Its devices become your work list.':'Build a quote option on the Quotes tab first.')+'</p>';
+  body.innerHTML=""; return;
+ }
+ syncLines(sc);
+ head.innerHTML=
+  '<div class="row"><div><label>Date of work</label><input type="date" value="'+esc(S.work.date)+'" onchange="S.work.date=this.value;save()"></div>'+
+  '<div><label>Performed by</label><input value="'+esc(S.work.by)+'" placeholder="Ryan" onchange="S.work.by=this.value;save()"></div></div>';
+ const items=workItems(sc);
+ const nDone=items.filter(l=>workLine(l).done).length;
+ const chipRow=li=>'<div class="chips">'+kwChip(items[li],li)+QN.map((q,qi)=>
+  '<button onclick="addNote('+li+','+qi+')">'+esc(q)+'</button>').join("")+'</div>';
+ let h='<div class="card"><h2 class="sec">Work list — '+nDone+' of '+items.length+' done</h2>'+
+  '<button class="btn alt" onclick="markAll(true)">Mark all done</button>'+
+  '<label>Add to every completed device</label><div class="chips">'+QN.map((q,qi)=>
+   '<button class="preset" onclick="noteAll('+qi+')">'+esc(q)+'</button>').join("")+'</div>'+
+  '<p class="hint">Tap a note under a device to add it to that device. The brass row adds it to every device marked done.</p></div>';
+ let lastO=null;
+ items.forEach((l,li)=>{
+  const f=findDev(l.ou,l.du), w=workLine(l);
+  if(lastO!==f.o.uid){
+   if(lastO!==null)h+='</div>';
+   lastO=f.o.uid;
+   h+='<div class="card" style="padding:10px 12px"><div class="grp">'+(f.i+1)+' · '+(esc(f.o.loc)||"unnamed")+' — '+esc(f.o.dtype)+'</div>';
+  }
+  h+='<div class="ln'+(w.done?'':' off')+'">'+
+   '<div class="top"><input class="ck" type="checkbox" '+(w.done?'checked':'')+' onchange="setDone('+li+',this.checked)">'+
+   '<b>'+esc(f.d.type)+' — '+esc(f.d.func)+'</b></div>'+
+   '<div class="sub">Quoted: '+esc(l.action)+(f.d.keyway&&isKeyed(f.d.func)?' · found '+esc(short(f.d.keyway)):'')+'</div>'+
+   '<textarea id="wn'+li+'" rows="2" placeholder="What you did, what you found" oninput="setNote('+li+',this.value)">'+esc(w.note)+'</textarea>'+
+   chipRow(li)+'</div>';
+ });
+ if(lastO!==null)h+='</div>';
+ const t=totals(sc,true);
+ h+='<div class="card"><h2 class="sec">Job notes</h2>'+
+  '<textarea rows="3" placeholder="Anything about the visit as a whole" oninput="S.work.notes=this.value;save()">'+esc(S.work.notes)+'</textarea></div>';
+ h+='<div class="card"><h2 class="sec">Bill</h2>'+
+  (nDone<items.length?'<div class="alert warn"><b>'+(items.length-nDone)+' not marked done</b>Those devices are left off the bill. Tick them if the work was done.</div>':'')+
+  '<div class="trow sum"><span>Amount due</span><b>$'+t.total.toFixed(2)+'</b></div>'+
+  '<p class="hint">Completed devices only, at today\'s prices, plus the option\'s hardware and other services. Change hardware or add a service on the quote option if the job changed.</p>'+
+  '<button class="btn" onclick="invoicePDF()">Service record &amp; invoice — print or share</button>'+
+  '<p class="hint">The survey PDF now carries this service record too.</p></div>';
+ h+='<div class="card"><h2 class="sec">Quick notes</h2><div id="qnEdit"></div>'+
+  '<button class="btn alt" onclick="addQN()">+ Add a quick note</button>'+
+  '<p class="hint">Kept on this device for every job.</p></div>';
+ body.innerHTML=h;
+ paintQN();
+}
+function kwChip(l,li){                 /* keyway as it stands after the work */
+ const f=findDev(l.ou,l.du); if(!f||!isKeyed(f.d.func))return "";
+ const kw=short(l.newKeyway||f.d.keyway||""); if(!kw)return "";
+ return '<button class="on" onclick="addNoteText('+li+',\'Keyway '+esc(kw).replace(/'/g,"")+'\')">Keyway '+esc(kw)+'</button>';
+}
+function setWorkOption(id){
+ if(!id){ S.work=null; save(); paintWork(); return; }
+ if(S.work&&S.work.sid!==id&&Object.values(S.work.lines).some(w=>w.done||w.note)){
+  if(!confirm("Switch the job to a different option? Notes already made stay with the devices they belong to."))
+   { paintWork(); return; }
+ }
+ const keep=S.work?S.work.lines:{};
+ S.work={sid:id,date:(S.work&&S.work.date)||new Date().toISOString().slice(0,10),
+  by:(S.work&&S.work.by)||S.by||"",notes:(S.work&&S.work.notes)||"",lines:keep};
+ save(); paintWork();
+}
+function curItems(){ return workItems(workScenario()); }
+function setDone(li,v){ workLine(curItems()[li]).done=v; save(); paintWork(); }
+function setNote(li,v){ workLine(curItems()[li]).note=v; save(); }
+function joinNote(a,b){ a=(a||"").trim(); if(!a)return b; if(a.includes(b))return a; return a.replace(/[.;,]$/,"")+". "+b; }
+function addNoteText(li,txt){
+ const w=workLine(curItems()[li]); w.note=joinNote(w.note,txt);
+ document.getElementById("wn"+li).value=w.note; save();
+}
+function addNote(li,qi){ addNoteText(li,QN[qi]); }
+function noteAll(qi){
+ const it=curItems().filter(l=>workLine(l).done);
+ if(!it.length){ alert("Mark devices done first — this adds the note to each completed one."); return; }
+ it.forEach(l=>{ const w=workLine(l); w.note=joinNote(w.note,QN[qi]); });
+ save(); paintWork();
+}
+function markAll(v){ curItems().forEach(l=>workLine(l).done=v); save(); paintWork(); }
+function paintQN(){
+ document.getElementById("qnEdit").innerHTML=QN.map((q,i)=>
+  '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'+
+  '<input value="'+esc(q)+'" onchange="setQN('+i+',this.value)" style="flex:1">'+
+  '<button class="x" onclick="delQN('+i+')">Delete</button></div>').join("");
+}
+function setQN(i,v){ v=v.trim(); if(!v){ delQN(i); return; } QN[i]=v; saveQN(); paintWork(); }
+function delQN(i){ QN.splice(i,1); saveQN(); paintWork(); }
+function addQN(){ const v=prompt("New quick note:"); if(!v||!v.trim())return; QN.push(v.trim()); saveQN(); paintWork(); }
+
+/* service record rows — shared by the invoice and the survey PDF */
+function recordTable(sc){
+ let h='<table><tr><th>#</th><th>Location</th><th>Device</th><th>Work</th><th>Notes</th></tr>';
+ workItems(sc).forEach(l=>{
+  const w=workLine(l); if(!w.done&&!w.note)return;
+  const f=findDev(l.ou,l.du);
+  h+='<tr><td>'+(f.i+1)+'</td><td>'+esc(f.o.loc)+'</td><td>'+esc(f.d.type)+' — '+esc(f.d.func)+'</td>'+
+     '<td>'+(w.done?esc(l.action):'Not done')+'</td><td>'+esc(w.note)+'</td></tr>';
+ });
+ return h+'</table>'+(S.work.notes&&S.work.notes.trim()?'<div class="obs" style="margin-top:6px">'+esc(S.work.notes)+'</div>':'');
+}
+/* Business details printed on the invoice. Edit here if any of them change. */
+const BIZ={name:"Garrison Lock &amp; Key, LLC", po:"PO Box 180065", city:"Fort Smith, AR 72908",
+ contact:"Ryan Smith", phone:"479-652-6643"};
+function invoicePDF(){
+ const sc=workScenario(); if(!sc)return;
+ const t=totals(sc,true);
+ const inv="INV-"+S.id.replace(/^GLK-R-/,"")+"-"+(S.work.date||"").replace(/-/g,"");
+ let h='<h2>Service Record &amp; Invoice</h2>'+
+  '<div style="font-size:9pt;color:#555;margin-bottom:9px">Garrison Lock &amp; Key · '+esc(inv)+' · Survey '+esc(S.id)+'</div>'+
+  '<table><tr><th>Customer</th><td>'+esc(S.cust)+'</td><th>Phone</th><td>'+esc(S.phone)+'</td></tr>'+
+  '<tr><th>Property</th><td colspan="3">'+esc(S.addr)+', '+esc(S.city)+' '+esc(S.zip)+'</td></tr>'+
+  '<tr><th>Date of work</th><td>'+esc(S.work.date)+'</td><th>Performed by</th><td>'+esc(S.work.by)+'</td></tr>'+
+  '<tr><th>Work order</th><td colspan="3">'+(esc(sc.name)||"Option")+'</td></tr></table>';
+ h+='<h3>Work performed</h3>'+recordTable(sc);
+ if((sc.hw||[]).length){
+  h+='<h3>Hardware supplied</h3><table><tr><th>Product</th><th>Brand</th><th>Finish</th><th>Openings</th><th>Qty</th></tr>'+
+   sc.hw.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.brand)+'</td><td>'+esc(x.finish)+'</td><td>'+esc(x.where)+'</td><td>'+esc(x.qty)+'</td></tr>').join("")+'</table>';
+ }
+ h+='<table style="margin-top:14px"><tr><th style="font-size:12pt">AMOUNT DUE</th><td style="text-align:right;font-size:12pt"><b>$'+t.total.toFixed(2)+'</b></td></tr></table>'+
+  '<p class="note">Includes labour, hardware and sales tax. Itemised pricing was provided with the quote. '+
+  'This record has been added to the door survey for this property.</p>'+
+  '<div class="remit">'+
+   '<div><div class="hd">Remit payment to</div><b>'+BIZ.name+'</b><br>'+BIZ.po+'<br>'+BIZ.city+
+    '<div class="ref">Please reference invoice '+esc(inv)+' with your payment.</div></div>'+
+   '<div><div class="hd">Questions or inquiries</div>Contact <b>'+BIZ.contact+'</b><br>'+
+    '<a href="tel:'+BIZ.phone.replace(/\D/g,"")+'" style="color:inherit;text-decoration:none">'+BIZ.phone+'</a></div>'+
+  '</div>';
+ S.work.billedAt=new Date().toLocaleString(); save();
+ document.getElementById("po").innerHTML=h;
+ setTimeout(()=>window.print(),150);
+}
+
+/* ── price book screen ──────────────────────────────────── */
+/* Every field passes a position number, never a name — names may contain quotes. */
+function paintPrice(){
+ document.getElementById("pbSettings").innerHTML=
+  '<label>Sales tax %</label><input type="number" inputmode="decimal" value="'+(+(PB.tax*100).toFixed(3))+'" onchange="setPBSetting(\'tax\',this.value)">'+
+  '<label>Minimum job charge</label><input type="number" inputmode="decimal" value="'+PB.minimum+'" onchange="setPBSetting(\'minimum\',this.value)">'+
+  '<label>Default parts markup %</label><input type="number" inputmode="decimal" value="'+(+(PB.markup*100).toFixed(3))+'" onchange="setPBSetting(\'markup\',this.value)">';
+ document.getElementById("pbRates").innerHTML=PB.rates.map((r,i)=>
+  '<div class="hwl"><div class="top" style="display:flex;justify-content:space-between;align-items:center">'+
+  '<b style="font-size:13px;color:#555">'+(isAuto(r.id)?'Added to quotes automatically':'Extra service')+'</b>'+
+  (isAuto(r.id)?'':'<button class="x" onclick="delRate('+i+')">Delete</button>')+'</div>'+
+  '<label>Name</label><input value="'+esc(r.name)+'" onchange="setRateName('+i+',this)">'+
+  '<label>Price $</label><input type="number" inputmode="decimal" min="0" value="'+r.price+'" onchange="setRatePrice('+i+',this.value)">'+
+  '</div>').join("");
+}
+function setPBSetting(k,v){
+ const n=parseFloat(v)||0;
+ PB[k]=(k==="minimum")?n:n/100;
+ savePB();
+}
+function setRatePrice(i,v){ PB.rates[i].price=Math.max(0,parseFloat(v)||0); savePB(); }
+function setRateName(i,inp){
+ const n=inp.value.trim();
+ if(!n){ alert("A service needs a name."); inp.value=PB.rates[i].name; return; }
+ if(PB.rates.some((r,j)=>j!==i&&r.name.toLowerCase()===n.toLowerCase())){
+  alert("There's already a service called \u201c"+n+"\u201d."); inp.value=PB.rates[i].name; return; }
+ PB.rates[i].name=n; savePB();
+}
+function addRate(){
+ const n=prompt("Name of the new service:"); if(n==null)return;
+ const name=n.trim(); if(!name)return;
+ if(PB.rates.some(r=>r.name.toLowerCase()===name.toLowerCase())){ alert("That service already exists."); return; }
+ const p=prompt("Price for \u201c"+name+"\u201d:","0"); if(p==null)return;
+ PB.rates.push({id:"c"+uid(),name,price:Math.max(0,parseFloat(p)||0)});
+ savePB(); paintPrice();
+}
+function delRate(i){
+ const r=PB.rates[i]; if(isAuto(r.id))return;
+ const used=(S.scenarios||[]).filter(sc=>(sc.extra||[]).some(x=>x.id===r.id)).length;
+ if(!confirm("Delete \u201c"+r.name+"\u201d from the price book?"+
+   (used?"\n\n"+used+" quote option"+(used===1?" in this survey uses":"s in this survey use")+" it. Those lines will drop out of the total until you change them.":"")))return;
+ PB.rates.splice(i,1); savePB(); paintPrice();
+}
+/* Backup — the price book lives in this browser's storage. A copy on iCloud survives a wiped iPad. */
+function exportPB(){
+ const b=new Blob([JSON.stringify({glk_pricebook:1,saved:new Date().toISOString(),pb:PB},null,1)],{type:"application/json"});
+ const u=URL.createObjectURL(b),a=document.createElement("a");
+ a.href=u;a.download="GLK-price-book_"+new Date().toISOString().slice(0,10)+".json";
+ a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);
+}
+function importPB(inp){
+ const f=inp.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=e=>{try{
+  const d=JSON.parse(e.target.result);
+  const src=d.glk_pricebook?d.pb:d.pb;   /* a price book backup, or any exported survey */
+  if(!src||!src.rates)throw new Error("no price book in that file");
+  if(!confirm("Replace your whole price book with the one in this file?"))return;
+  PB=upgradePB(src); savePB(); paintPrice();
+ }catch(err){alert("Couldn't read that file: "+err.message)}};
+ r.readAsText(f);inp.value="";
+}
+
+/* Customer's price for one unit of hardware — cost and markup stay hidden. */
+function hwEach(x){
+ const c=parseFloat(x.cost)||0;
+ const m=x.markup===""||x.markup==null?S.pb.markup:(parseFloat(x.markup)/100);
+ return c*(1+m);
+}
+function labourTable(t){
+ if(!t.lines.length) return '<p class="note">No labour charges.</p>';
+ return '<table><tr><th>Service</th><th style="text-align:right">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr>'+
+  t.lines.map(l=>'<tr><td>'+esc(l.n)+'</td><td style="text-align:right">'+l.q+'</td><td style="text-align:right">$'+l.r.toFixed(2)+
+   '</td><td style="text-align:right">$'+(l.q*l.r).toFixed(2)+'</td></tr>').join("")+
+  '<tr><th colspan="3">Labour and service total</th><td style="text-align:right"><b>$'+t.labour.toFixed(2)+'</b></td></tr></table>';
+}
+
+/* ── quote PDF — BR-13: no cost, no markup ──────────────── */
+function quotePDF(){
+ const sc=S.scenarios[scIdx], t=totals(sc);
+ let h='<h2>Quote — '+(esc(sc.name)||"Option")+'</h2>'+
+  '<div style="font-size:9pt;color:#555;margin-bottom:9px">Garrison Lock &amp; Key · '+esc(S.id)+' · '+esc(S.date)+'</div>'+
+  '<table><tr><th>Customer</th><td>'+esc(S.cust)+'</td><th>Phone</th><td>'+esc(S.phone)+'</td></tr>'+
+  '<tr><th>Property</th><td colspan="3">'+esc(S.addr)+', '+esc(S.city)+' '+esc(S.zip)+'</td></tr></table>';
+ if(sc.desc)h+='<p class="note">'+esc(sc.desc)+'</p>';
+
+ h+='<h3>Work included</h3><table><tr><th>#</th><th>Location</th><th>Device</th><th>Work</th><th>Keyed alike</th></tr>';
+ sc.lines.forEach(l=>{
+  if(!l.inc||!l.action||l.action==="No work")return;
+  const f=findDev(l.ou,l.du); if(!f)return;
+  h+='<tr><td>'+(f.i+1)+'</td><td>'+esc(f.o.loc)+'</td><td>'+esc(f.d.type)+' — '+esc(f.d.func)+'</td>'+
+     '<td>'+esc(l.action)+'</td><td>'+(l.kg&&l.kg!=="None"?esc(l.kg):"—")+'</td></tr>';
+ });
+ h+='</table>';
+
+ if((sc.hw||[]).length){
+  h+='<h3>Hardware supplied</h3><table><tr><th>Product</th><th>Brand</th><th>Grade</th><th>Finish</th><th>Openings</th><th>Qty</th><th style="text-align:right">Each</th><th style="text-align:right">Amount</th></tr>';
+  sc.hw.forEach(x=>{ const q=parseInt(x.qty,10)||0, ea=hwEach(x);
+   h+='<tr><td>'+esc(x.name)+'</td><td>'+esc(x.brand)+'</td><td>'+esc(x.grade)+
+   '</td><td>'+esc(x.finish)+'</td><td>'+esc(x.where)+'</td><td>'+q+'</td>'+
+   '<td style="text-align:right">$'+ea.toFixed(2)+'</td><td style="text-align:right">$'+(ea*q).toFixed(2)+'</td></tr>'; });
+  h+='</table>';
+ }
+
+ /* the customer sees how the labour figure is built */
+ h+='<h3>Labour and service</h3>'+labourTable(t);
+
+ h+='<h3>Price</h3><table>'+
+  '<tr><th>Labour and service</th><td style="text-align:right">$'+t.labour.toFixed(2)+'</td></tr>'+
+  '<tr><th>Hardware</th><td style="text-align:right">$'+t.parts.toFixed(2)+'</td></tr>'+
+  '<tr><th>Subtotal</th><td style="text-align:right">$'+t.sub.toFixed(2)+'</td></tr>'+
+  '<tr><th>Sales tax</th><td style="text-align:right">$'+t.tax.toFixed(2)+'</td></tr>'+
+  '<tr><th style="font-size:11pt">TOTAL</th><td style="text-align:right;font-size:11pt"><b>$'+t.total.toFixed(2)+'</b></td></tr></table>';
+ h+='<p class="note">Based on the door survey of '+esc(S.date)+'. Conditions concealed by hardware or finish '+
+    'were not inspected and may alter this quote; anything found will be raised before the work is done.</p>';
+ document.getElementById("po").innerHTML=h;
+ setTimeout(()=>window.print(),150);
+}
+
+/* ── comparison sheet ───────────────────────────────────── */
+function comparePDF(){
+ ensureQuote();
+ if(!S.scenarios.length){alert("No quote options yet.");return}
+ let h='<h2>Quote Options</h2>'+
+  '<div style="font-size:9pt;color:#555;margin-bottom:9px">Garrison Lock &amp; Key · '+esc(S.id)+' · '+esc(S.date)+'</div>'+
+  '<table><tr><th>Customer</th><td>'+esc(S.cust)+'</td><th>Property</th><td>'+esc(S.addr)+'</td></tr></table>'+
+  '<h3>Options</h3><table><tr><th>Option</th><th>What it covers</th><th>Devices</th><th style="text-align:right">Total</th></tr>';
+ S.scenarios.forEach(sc=>{
+  syncLines(sc); const t=totals(sc);
+  h+='<tr><td><b>'+(esc(sc.name)||"Option")+'</b></td><td>'+esc(sc.desc)+'</td>'+
+     '<td>'+sc.lines.filter(l=>l.inc&&l.action&&l.action!=="No work").length+'</td>'+
+     '<td style="text-align:right"><b>$'+t.total.toFixed(2)+'</b></td></tr>';
+ });
+ h+='</table><p class="note">All options are based on the same door survey of '+esc(S.date)+
+    '. Each option is priced complete, including labour, hardware and tax.</p>';
+ document.getElementById("po").innerHTML=h;
+ setTimeout(()=>window.print(),150);
+}
+
+/* BOOT */
+(async function(){
+ await openDB();
+ fill("p_ptype",L.ptype);fill("p_own",L.owner);fill("p_trig",L.trigger);
+ fill("p_thk",L.thk);fill("p_bs",L.bs);fill("p_cb",L.cb);
+ const saved=await getSaved();
+ const storedPB=await getKey("pb");
+ /* first run on v3.3: adopt whatever prices the open survey carried, else defaults */
+ PB=upgradePB(storedPB || (saved&&saved.pb) || null);
+ putKey(PB,"pb");
+ QN=(await getKey("qn"))||QN_DEFAULT.slice();
+ S=saved?normalize(saved):blank();
+ ensureQuote();
+ paintProp();bindProp();paintFlag();
+ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+})();
+</script>
+</body>
+</html>
